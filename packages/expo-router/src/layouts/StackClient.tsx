@@ -20,6 +20,7 @@ import { ComponentProps } from 'react';
 
 import { withLayoutContext } from './withLayoutContext';
 import { SingularOptions, getSingularId } from '../useScreens';
+import { Protected, ProtectedProps } from '../views/Protected';
 
 type GetId = NonNullable<RouterConfigOptions['routeGetIdList'][string]>;
 
@@ -106,10 +107,7 @@ export const stackRouterOverride: NonNullable<ComponentProps<typeof RNStack>['UN
            */
           const nextState = original.getStateForAction(state, action, {
             ...options,
-            routeGetIdList: {
-              ...options.routeGetIdList,
-              [action.payload.name]: getIdFunction(),
-            },
+            routeGetIdList: { ...options.routeGetIdList, [action.payload.name]: getIdFunction() },
           });
 
           /**
@@ -219,11 +217,7 @@ function filterSingular<
     return name !== route.name || id !== getId({ params: route.params });
   });
 
-  return {
-    ...state,
-    index: routes.length - 1,
-    routes,
-  };
+  return { ...state, index: routes.length - 1, routes };
 }
 
 const Stack = Object.assign(
@@ -234,6 +228,7 @@ const Stack = Object.assign(
     Screen: RNStack.Screen as (
       props: ComponentProps<typeof RNStack.Screen> & { singular?: boolean }
     ) => null,
+    Protected: Protected as (props: ComponentProps<typeof RNStack.Screen> & ProtectedProps) => null,
   }
 );
 
@@ -241,8 +236,5 @@ export default Stack;
 
 export const StackRouter: typeof RNStackRouter = (options) => {
   const router = RNStackRouter(options);
-  return {
-    ...router,
-    ...stackRouterOverride(router),
-  };
+  return { ...router, ...stackRouterOverride(router) };
 };

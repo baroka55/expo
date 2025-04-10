@@ -8,14 +8,17 @@ import React, {
   PropsWithoutRef,
   ReactNode,
   RefAttributes,
-  isValidElement,
   useMemo,
+  useState,
+  createContext,
 } from 'react';
 
-import { useContextKey } from '../Route';
+import { useContextKey, useRouteNode } from '../Route';
+import { store } from '../global-state/router-store';
 import { PickPartial } from '../types';
 import { useSortedScreens, ScreenProps } from '../useScreens';
-import { Screen } from '../views/Screen';
+import { isProtectedReactElement, Protected } from '../views/Protected';
+import { isScreen, Screen } from '../views/Screen';
 
 export function useFilterScreenChildren(
   children: ReactNode,
@@ -30,42 +33,45 @@ export function useFilterScreenChildren(
 ) {
   return useMemo(() => {
     const customChildren: any[] = [];
-    const screens = Children.map(children, (child) => {
-      if (isValidElement(child) && child && child.type === Screen) {
-        if (
-          typeof child.props === 'object' &&
-          child.props &&
-          'name' in child.props &&
-          !child.props.name
-        ) {
-          throw new Error(
-            `<Screen /> component in \`default export\` at \`app${contextKey}/_layout\` must have a \`name\` prop when used as a child of a Layout Route.`
-          );
-        }
-        if (process.env.NODE_ENV !== 'production') {
-          if (
-            ['children', 'component', 'getComponent'].some(
-              (key) => child.props && typeof child.props === 'object' && key in child.props
-            )
-          ) {
-            throw new Error(
-              `<Screen /> component in \`default export\` at \`app${contextKey}/_layout\` must not have a \`children\`, \`component\`, or \`getComponent\` prop when used as a child of a Layout Route`
-            );
-          }
-        }
-        return child.props as ScreenProps;
-      } else {
-        if (isCustomNavigator) {
-          customChildren.push(child);
-        } else {
-          console.warn(
-            `Layout children must be of type Screen, all other children are ignored. To use custom children, create a custom <Layout />. Update Layout Route at: "app${contextKey}/_layout"`
-          );
-        }
 
-        return null;
+    const screens: (ScreenProps & { name: string })[] = [];
+    const protectedScreens = new Set<string>();
+
+    function flattenChild(child, exclude = false) {
+      if (isScreen(child, contextKey)) {
+        if (exclude) {
+          protectedScreens.add(child.props.name);
+        } else {
+          screens.push(child.props);
+        }
+        return;
       }
-    })?.filter((screen): screen is ScreenProps => Boolean(screen));
+
+      if (isProtectedReactElement(child)) {
+        if (child.props.guard) {
+          Children.forEach(child.props.children, (protectedChild) => flattenChild(protectedChild));
+        } else {
+          Children.forEach(child.props.children, (protectedChild) => {
+            flattenChild(protectedChild, true);
+          });
+        }
+        return;
+      }
+
+      if (isCustomNavigator) {
+        customChildren.push(child);
+      }
+
+      console.log(child.props);
+
+      console.warn(
+        `Layout children must be of type Screen, all other children are ignored. To use custom children, create a custom <Layout />. Update Layout Route at: "app${contextKey}/_layout"`
+      );
+
+      return null;
+    }
+
+    Children.forEach(children, (child) => flattenChild(child));
 
     // Add an assertion for development
     if (process.env.NODE_ENV !== 'production') {
@@ -78,12 +84,11 @@ export function useFilterScreenChildren(
       }
     }
 
-    return {
-      screens,
-      children: customChildren,
-    };
+    return { screens, protectedScreens, children: customChildren };
   }, [children]);
 }
+
+export const StaleContext = createContext(false);
 
 /**
  * Returns a navigator that automatically injects matched routes and renders nothing when there are no children.
@@ -115,6 +120,7 @@ export function useFilterScreenChildren(
  * }
  * ```
  */
+
 export function withLayoutContext<
   TOptions extends object,
   T extends ComponentType<any>,
@@ -124,28 +130,65 @@ export function withLayoutContext<
   return Object.assign(
     forwardRef(({ children: userDefinedChildren, ...props }: any, ref) => {
       const contextKey = useContextKey();
+      const node = useRouteNode();
+      const [staleKey, setStaleKey] = useState(0);
 
-      const { screens } = useFilterScreenChildren(userDefinedChildren, {
+      const { screens, protectedScreens } = useFilterScreenChildren(userDefinedChildren, {
         contextKey,
       });
 
       const processed = processor ? processor(screens ?? []) : screens;
 
-      const sorted = useSortedScreens(processed ?? []);
+      const sorted = useSortedScreens(processed ?? [], protectedScreens);
 
-      // Prevent throwing an error when there are no screens.
       if (!sorted.length) {
         return null;
       }
 
-      return <Nav {...props} id={contextKey} ref={ref} children={sorted} />;
+      const navigationKey = `${staleKey}`; //+ (protectedFallbacks ? `user` : `guest`);
+
+      const screenListeners = () => ({
+        ...props.screenListeners,
+        state: (e) => {
+          props.screenListeners?.state?.(e);
+
+          if (!node) return;
+
+          const name = node.route || '__root';
+          let old = store.navigationRef.getState().routes[0] as any;
+
+          if (!old.state.stale) {
+            return;
+          }
+
+          while (old.name !== name) {
+            old = old.state.routes[old.index || 0];
+          }
+
+          const oldRoute = old.state.routes[old.index || 0].name;
+          const newRoute = e.data.state.routes[e.data.state.index || 0].name;
+
+          if (oldRoute !== newRoute) {
+            setStaleKey((prev) => prev + 1);
+          }
+        },
+      });
+
+      return (
+        <Nav
+          key={navigationKey}
+          {...props}
+          ref={ref}
+          children={sorted}
+          screenListeners={screenListeners}
+        />
+      );
     }),
-    {
-      Screen,
-    }
+    { Screen, Protected }
   ) as ForwardRefExoticComponent<
     PropsWithoutRef<PickPartial<ComponentProps<T>, 'children'>> & RefAttributes<unknown>
   > & {
     Screen: (props: ScreenProps<TOptions, TState, TEventMap>) => null;
+    Protected: typeof Protected;
   };
 }

@@ -29,6 +29,7 @@ import {
 import { getSortedRoutes } from './sort-routes';
 import { UrlObject, getRouteInfoFromState } from '../LocationProvider';
 import { RouteNode } from '../Route';
+import { ResultState } from '../exports';
 import { getPathDataFromState, getPathFromState } from '../fork/getPathFromState';
 import { cleanPath, routePatternToRegex } from '../fork/getStateFromPath-forks';
 import { ExpoLinkingOptions, LinkingConfigOptions, getLinkingConfig } from '../getLinkingConfig';
@@ -41,8 +42,6 @@ import { Href, RequireContext } from '../types';
 import { getQualifiedRouteComponent } from '../useScreens';
 import { shouldLinkExternally } from '../utils/url';
 import * as SplashScreen from '../views/Splash';
-
-type ResultState = any;
 
 /**
  * This is the global state for the router. It is used to keep track of the current route, and to provide a way to navigate to other routes.
@@ -60,6 +59,7 @@ export class RouterStore {
   nextState?: ResultState;
   routeInfo?: UrlObject;
   splashScreenAnimationFrame?: number;
+  fixStaleAnimationFrame?: number;
 
   // The expo-router config plugin
   config: any;
@@ -142,7 +142,7 @@ export class RouterStore {
       // This will cause static rendering to fail, which once performs a single pass.
       // If the initialURL is a string, we can prefetch the state and routeInfo, skipping React Navigation's async behavior.
       const initialURL = this.linking?.getInitialURL?.();
-      if (typeof initialURL === 'string') {
+      if (typeof initialURL === 'string' && initialURL !== '/') {
         this.rootState = this.linking.getStateFromPath?.(initialURL, this.linking.config);
         this.initialState = this.rootState;
         if (this.rootState) {

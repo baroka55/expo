@@ -1,12 +1,13 @@
 'use client';
 
-import type {
-  EventMapBase,
-  NavigationState,
-  ParamListBase,
-  RouteConfig,
-  RouteProp,
-  ScreenListeners,
+import {
+  NavigationAction,
+  type EventMapBase,
+  type NavigationState,
+  type ParamListBase,
+  type RouteConfig,
+  type RouteProp,
+  type ScreenListeners,
 } from '@react-navigation/native';
 import React from 'react';
 
@@ -53,14 +54,9 @@ export type SingularOptions =
 
 function getSortedChildren(
   children: RouteNode[],
-  order?: ScreenProps[],
+  order: ScreenProps[] = [],
   initialRouteName?: string
-): { route: RouteNode; props: Partial<ScreenProps> }[] {
-  if (!order?.length) {
-    return children
-      .sort(sortRoutesWithInitial(initialRouteName))
-      .map((route) => ({ route, props: {} }));
-  }
+) {
   const entries = [...children];
 
   const ordered = order
@@ -120,17 +116,11 @@ function getSortedChildren(
             }
           }
 
-          return {
-            route: match,
-            props: { initialParams, listeners, options, getId },
-          };
+          return { route: match, props: { initialParams, listeners, options, getId } };
         }
       }
     )
-    .filter(Boolean) as {
-    route: RouteNode;
-    props: Partial<ScreenProps>;
-  }[];
+    .filter(Boolean) as { route: RouteNode; props: Partial<ScreenProps> }[];
 
   // Add any remaining children
   ordered.push(
@@ -140,18 +130,29 @@ function getSortedChildren(
   return ordered;
 }
 
+export type GetProtectedNavigationAction = (screen: string) => NavigationAction;
+
 /**
  * @returns React Navigation screens sorted by the `route` property.
  */
-export function useSortedScreens(order: ScreenProps[]): React.ReactNode[] {
+export function useSortedScreens(
+  order: ScreenProps[],
+  protectedScreens: Set<string>
+): React.ReactNode[] {
   const node = useRouteNode();
 
   const sorted = node?.children?.length
     ? getSortedChildren(node.children, order, node.initialRouteName)
     : [];
+
   return React.useMemo(
-    () => sorted.map((value) => routeToScreen(value.route, value.props)),
-    [sorted]
+    () =>
+      sorted
+        .filter((item) => !protectedScreens.has(item.route.route))
+        .map((value) => {
+          return routeToScreen(value.route, value.props);
+        }),
+    [sorted, protectedScreens]
   );
 }
 
@@ -163,10 +164,7 @@ function fromImport(value: RouteNode, { ErrorBoundary, ...component }: LoadedRou
 
   if (ErrorBoundary) {
     const Wrapped = React.forwardRef((props: any, ref: any) => {
-      const children = React.createElement(component.default || EmptyRoute, {
-        ...props,
-        ref,
-      });
+      const children = React.createElement(component.default || EmptyRoute, { ...props, ref });
       return <Try catch={ErrorBoundary}>{children}</Try>;
     });
 
@@ -174,9 +172,7 @@ function fromImport(value: RouteNode, { ErrorBoundary, ...component }: LoadedRou
       Wrapped.displayName = `ErrorBoundary(${value.contextKey})`;
     }
 
-    return {
-      default: Wrapped,
-    };
+    return { default: Wrapped };
   }
   if (process.env.NODE_ENV !== 'production') {
     if (
@@ -217,9 +213,7 @@ export function getQualifiedRouteComponent(value: RouteNode) {
   if (EXPO_ROUTER_IMPORT_MODE === 'lazy') {
     ScreenComponent = React.lazy(async () => {
       const res = value.loadRoute();
-      return fromLoadedRoute(value, res) as Promise<{
-        default: React.ComponentType<any>;
-      }>;
+      return fromLoadedRoute(value, res) as Promise<{ default: React.ComponentType<any> }>;
     });
 
     if (__DEV__) {
@@ -238,6 +232,8 @@ export function getQualifiedRouteComponent(value: RouteNode) {
     // Pass all other props to the component
     ...props
   }: any) {
+    // console.log('**', JSON.stringify(useNavigation().getState(), null, 2));
+
     return (
       <Route node={value} route={route}>
         <React.Suspense fallback={<SuspenseFallback route={value} />}>
@@ -269,10 +265,7 @@ export function screenOptionsFactory(
     const staticOptions = route.generated ? route.loadRoute()?.getNavOptions : null;
     const staticResult = typeof staticOptions === 'function' ? staticOptions(args) : staticOptions;
     const dynamicResult = typeof options === 'function' ? options?.(args) : options;
-    const output = {
-      ...staticResult,
-      ...dynamicResult,
-    };
+    const output = { ...staticResult, ...dynamicResult };
 
     // Prevent generated screens from showing up in the tab bar.
     if (route.generated) {

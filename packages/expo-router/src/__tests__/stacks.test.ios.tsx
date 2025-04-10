@@ -13,15 +13,7 @@ import { act, screen, renderRouter, testRouter } from '../testing-library';
  */
 describe('canDismiss', () => {
   it('should work within the default Stack', () => {
-    renderRouter(
-      {
-        a: () => null,
-        b: () => null,
-      },
-      {
-        initialUrl: '/a',
-      }
-    );
+    renderRouter({ a: () => null, b: () => null }, { initialUrl: '/a' });
 
     expect(router.canDismiss()).toBe(false);
     act(() => router.push('/b'));
@@ -29,16 +21,7 @@ describe('canDismiss', () => {
   });
 
   it('should always return false while not within a stack', () => {
-    renderRouter(
-      {
-        a: () => null,
-        b: () => null,
-        _layout: () => <Tabs />,
-      },
-      {
-        initialUrl: '/a',
-      }
-    );
+    renderRouter({ a: () => null, b: () => null, _layout: () => <Tabs /> }, { initialUrl: '/a' });
 
     expect(router.canDismiss()).toBe(false);
     act(() => router.push('/b'));
@@ -48,15 +31,8 @@ describe('canDismiss', () => {
 
 test('dismiss', () => {
   renderRouter(
-    {
-      a: () => null,
-      b: () => null,
-      c: () => null,
-      d: () => null,
-    },
-    {
-      initialUrl: '/a',
-    }
+    { a: () => null, b: () => null, c: () => null, d: () => null },
+    { initialUrl: '/a' }
   );
 
   act(() => router.push('/b'));
@@ -74,15 +50,8 @@ test('dismiss', () => {
 
 test('dismissAll', () => {
   renderRouter(
-    {
-      a: () => null,
-      b: () => null,
-      c: () => null,
-      d: () => null,
-    },
-    {
-      initialUrl: '/a',
-    }
+    { a: () => null, b: () => null, c: () => null, d: () => null },
+    { initialUrl: '/a' }
   );
 
   act(() => router.push('/b'));
@@ -109,9 +78,7 @@ test('dismissAll nested', () => {
       'one/two/index': () => null,
       'one/two/page': () => null,
     },
-    {
-      initialUrl: '/a',
-    }
+    { initialUrl: '/a' }
   );
 
   testRouter.push('/b');
@@ -140,32 +107,16 @@ test('dismissAll nested', () => {
         params: undefined,
         state: {
           history: [
-            {
-              key: expect.any(String),
-              type: 'route',
-            },
-            {
-              key: expect.any(String),
-              type: 'route',
-            },
+            { key: expect.any(String), type: 'route' },
+            { key: expect.any(String), type: 'route' },
           ],
           index: 2,
           key: expect.any(String),
           preloadedRouteKeys: [],
           routeNames: ['a', 'b', 'one', '_sitemap', '+not-found'],
           routes: [
-            {
-              key: expect.any(String),
-              name: 'a',
-              params: undefined,
-              path: '/a',
-            },
-            {
-              key: expect.any(String),
-              name: 'b',
-              params: {},
-              path: undefined,
-            },
+            { key: expect.any(String), name: 'a', params: undefined, path: '/a' },
+            { key: expect.any(String), name: 'b', params: {}, path: undefined },
             {
               key: expect.any(String),
               name: 'one',
@@ -176,24 +127,9 @@ test('dismissAll nested', () => {
                 preloadedRoutes: [],
                 routeNames: ['index', 'two', 'page'],
                 routes: [
-                  {
-                    key: expect.any(String),
-                    name: 'index',
-                    params: {},
-                    path: undefined,
-                  },
-                  {
-                    key: expect.any(String),
-                    name: 'page',
-                    params: {},
-                    path: undefined,
-                  },
-                  {
-                    key: expect.any(String),
-                    name: 'page',
-                    params: {},
-                    path: undefined,
-                  },
+                  { key: expect.any(String), name: 'index', params: {}, path: undefined },
+                  { key: expect.any(String), name: 'page', params: {}, path: undefined },
+                  { key: expect.any(String), name: 'page', params: {}, path: undefined },
                   {
                     key: expect.any(String),
                     name: 'two',
@@ -204,24 +140,9 @@ test('dismissAll nested', () => {
                       preloadedRoutes: [],
                       routeNames: ['index', 'page'],
                       routes: [
-                        {
-                          key: expect.any(String),
-                          name: 'index',
-                          params: {},
-                          path: undefined,
-                        },
-                        {
-                          key: expect.any(String),
-                          name: 'page',
-                          params: {},
-                          path: undefined,
-                        },
-                        {
-                          key: expect.any(String),
-                          name: 'page',
-                          params: {},
-                          path: undefined,
-                        },
+                        { key: expect.any(String), name: 'index', params: {}, path: undefined },
+                        { key: expect.any(String), name: 'page', params: {}, path: undefined },
+                        { key: expect.any(String), name: 'page', params: {}, path: undefined },
                       ],
                       stale: false,
                       type: 'stack',
@@ -232,16 +153,8 @@ test('dismissAll nested', () => {
                 type: 'stack',
               },
             },
-            {
-              key: expect.any(String),
-              name: '_sitemap',
-              params: undefined,
-            },
-            {
-              key: expect.any(String),
-              name: '+not-found',
-              params: undefined,
-            },
+            { key: expect.any(String), name: '_sitemap', params: undefined },
+            { key: expect.any(String), name: '+not-found', params: undefined },
           ],
           stale: false,
           type: 'tab',
@@ -267,32 +180,16 @@ test('dismissAll nested', () => {
         params: undefined,
         state: {
           history: [
-            {
-              key: expect.any(String),
-              type: 'route',
-            },
-            {
-              key: expect.any(String),
-              type: 'route',
-            },
+            { key: expect.any(String), type: 'route' },
+            { key: expect.any(String), type: 'route' },
           ],
           index: 2,
           key: expect.any(String),
           preloadedRouteKeys: [],
           routeNames: ['a', 'b', 'one', '_sitemap', '+not-found'],
           routes: [
-            {
-              key: expect.any(String),
-              name: 'a',
-              params: undefined,
-              path: '/a',
-            },
-            {
-              key: expect.any(String),
-              name: 'b',
-              params: {},
-              path: undefined,
-            },
+            { key: expect.any(String), name: 'a', params: undefined, path: '/a' },
+            { key: expect.any(String), name: 'b', params: {}, path: undefined },
             {
               key: expect.any(String),
               name: 'one',
@@ -303,24 +200,9 @@ test('dismissAll nested', () => {
                 preloadedRoutes: [],
                 routeNames: ['index', 'two', 'page'],
                 routes: [
-                  {
-                    key: expect.any(String),
-                    name: 'index',
-                    params: {},
-                    path: undefined,
-                  },
-                  {
-                    key: expect.any(String),
-                    name: 'page',
-                    params: {},
-                    path: undefined,
-                  },
-                  {
-                    key: expect.any(String),
-                    name: 'page',
-                    params: {},
-                    path: undefined,
-                  },
+                  { key: expect.any(String), name: 'index', params: {}, path: undefined },
+                  { key: expect.any(String), name: 'page', params: {}, path: undefined },
+                  { key: expect.any(String), name: 'page', params: {}, path: undefined },
                   {
                     key: expect.any(String),
                     name: 'two',
@@ -331,12 +213,7 @@ test('dismissAll nested', () => {
                       preloadedRoutes: [],
                       routeNames: ['index', 'page'],
                       routes: [
-                        {
-                          key: expect.any(String),
-                          name: 'index',
-                          params: {},
-                          path: undefined,
-                        },
+                        { key: expect.any(String), name: 'index', params: {}, path: undefined },
                       ],
                       stale: false,
                       type: 'stack',
@@ -347,16 +224,8 @@ test('dismissAll nested', () => {
                 type: 'stack',
               },
             },
-            {
-              key: expect.any(String),
-              name: '_sitemap',
-              params: undefined,
-            },
-            {
-              key: expect.any(String),
-              name: '+not-found',
-              params: undefined,
-            },
+            { key: expect.any(String), name: '_sitemap', params: undefined },
+            { key: expect.any(String), name: '+not-found', params: undefined },
           ],
           stale: false,
           type: 'tab',
@@ -382,32 +251,16 @@ test('dismissAll nested', () => {
         params: undefined,
         state: {
           history: [
-            {
-              key: expect.any(String),
-              type: 'route',
-            },
-            {
-              key: expect.any(String),
-              type: 'route',
-            },
+            { key: expect.any(String), type: 'route' },
+            { key: expect.any(String), type: 'route' },
           ],
           index: 2,
           key: expect.any(String),
           preloadedRouteKeys: [],
           routeNames: ['a', 'b', 'one', '_sitemap', '+not-found'],
           routes: [
-            {
-              key: expect.any(String),
-              name: 'a',
-              params: undefined,
-              path: '/a',
-            },
-            {
-              key: expect.any(String),
-              name: 'b',
-              params: {},
-              path: undefined,
-            },
+            { key: expect.any(String), name: 'a', params: undefined, path: '/a' },
+            { key: expect.any(String), name: 'b', params: {}, path: undefined },
             {
               key: expect.any(String),
               name: 'one',
@@ -417,28 +270,13 @@ test('dismissAll nested', () => {
                 key: expect.any(String),
                 preloadedRoutes: [],
                 routeNames: ['index', 'two', 'page'],
-                routes: [
-                  {
-                    key: expect.any(String),
-                    name: 'index',
-                    params: {},
-                    path: undefined,
-                  },
-                ],
+                routes: [{ key: expect.any(String), name: 'index', params: {}, path: undefined }],
                 stale: false,
                 type: 'stack',
               },
             },
-            {
-              key: expect.any(String),
-              name: '_sitemap',
-              params: undefined,
-            },
-            {
-              key: expect.any(String),
-              name: '+not-found',
-              params: undefined,
-            },
+            { key: expect.any(String), name: '_sitemap', params: undefined },
+            { key: expect.any(String), name: '+not-found', params: undefined },
           ],
           stale: false,
           type: 'tab',
@@ -467,9 +305,7 @@ test('pushing in a nested stack should only rerender the nested stack', () => {
       '[one]/[two]/_layout': NestedNestedLayout,
       '[one]/[two]/a': () => null,
     },
-    {
-      initialUrl: '/one/a',
-    }
+    { initialUrl: '/one/a' }
   );
 
   testRouter.push('/one/b');
@@ -487,9 +323,7 @@ test('can preserve the nested initialRouteName when navigating to a nested stack
   renderRouter({
     index: () => <Text testID="link">Index</Text>,
     '/fruit/_layout': {
-      unstable_settings: {
-        anchor: 'apple',
-      },
+      unstable_settings: { anchor: 'apple' },
       default: () => {
         return <Stack />;
       },
@@ -517,28 +351,16 @@ describe('singular', () => {
         ),
         '[slug]': () => <Text>slug</Text>,
       },
-      {
-        initialUrl: '/apple',
-      }
+      { initialUrl: '/apple' }
     );
 
     expect(screen).toHaveRouterState({
       routes: [
         {
           name: '__root',
-          params: {
-            slug: 'apple',
-          },
+          params: { slug: 'apple' },
           state: {
-            routes: [
-              {
-                name: '[slug]',
-                params: {
-                  slug: 'apple',
-                },
-                path: '/apple',
-              },
-            ],
+            routes: [{ name: '[slug]', params: { slug: 'apple' }, path: '/apple' }],
             stale: true,
           },
         },
@@ -558,9 +380,7 @@ describe('singular', () => {
         {
           key: expect.any(String),
           name: '__root',
-          params: {
-            slug: 'apple',
-          },
+          params: { slug: 'apple' },
           state: {
             index: 0,
             key: expect.any(String),
@@ -570,9 +390,7 @@ describe('singular', () => {
               {
                 key: expect.any(String),
                 name: '[slug]',
-                params: {
-                  slug: 'apple',
-                },
+                params: { slug: 'apple' },
                 path: '/apple',
               },
             ],
@@ -596,9 +414,7 @@ describe('singular', () => {
         {
           key: expect.any(String),
           name: '__root',
-          params: {
-            slug: 'apple',
-          },
+          params: { slug: 'apple' },
           state: {
             index: 1,
             key: expect.any(String),
@@ -608,17 +424,13 @@ describe('singular', () => {
               {
                 key: expect.any(String),
                 name: '[slug]',
-                params: {
-                  slug: 'apple',
-                },
+                params: { slug: 'apple' },
                 path: '/apple',
               },
               {
                 key: expect.any(String),
                 name: '[slug]',
-                params: {
-                  slug: 'banana',
-                },
+                params: { slug: 'banana' },
                 path: undefined,
               },
             ],
@@ -643,9 +455,7 @@ describe('singular', () => {
         {
           key: expect.any(String),
           name: '__root',
-          params: {
-            slug: 'apple',
-          },
+          params: { slug: 'apple' },
           state: {
             index: 1,
             key: expect.any(String),
@@ -655,17 +465,13 @@ describe('singular', () => {
               {
                 key: expect.any(String),
                 name: '[slug]',
-                params: {
-                  slug: 'banana',
-                },
+                params: { slug: 'banana' },
                 path: undefined,
               },
               {
                 key: expect.any(String),
                 name: '[slug]',
-                params: {
-                  slug: 'apple',
-                },
+                params: { slug: 'apple' },
                 path: '/apple',
               },
             ],

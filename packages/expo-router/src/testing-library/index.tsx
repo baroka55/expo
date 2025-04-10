@@ -62,6 +62,8 @@ export function renderRouter(
     options
   );
 
+  act(() => jest.runOnlyPendingTimers());
+
   /**
    * This is a hack to ensure that React Navigation's state updates are processed before we run assertions.
    * Some updates are async and we need to wait for them to complete, otherwise will we get a false positive.

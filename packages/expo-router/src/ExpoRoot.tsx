@@ -148,6 +148,7 @@ function ContextNavigator({
       initialState={store.initialState}
       linking={store.linking as LinkingOptions<any>}
       onUnhandledAction={onUnhandledAction}
+      onReady={() => console.log('Router is ready')}
       documentTitle={{
         enabled: false,
       }}>
