@@ -174,15 +174,7 @@ export function withLayoutContext<
         },
       });
 
-      return (
-        <Nav
-          key={navigationKey}
-          {...props}
-          ref={ref}
-          children={sorted}
-          screenListeners={screenListeners}
-        />
-      );
+      return <Nav {...props} ref={ref} children={sorted} />;
     }),
     { Screen, Protected }
   ) as ForwardRefExoticComponent<

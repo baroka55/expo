@@ -59,7 +59,6 @@ export class RouterStore {
   nextState?: ResultState;
   routeInfo?: UrlObject;
   splashScreenAnimationFrame?: number;
-  fixStaleAnimationFrame?: number;
 
   // The expo-router config plugin
   config: any;
@@ -142,7 +141,7 @@ export class RouterStore {
       // This will cause static rendering to fail, which once performs a single pass.
       // If the initialURL is a string, we can prefetch the state and routeInfo, skipping React Navigation's async behavior.
       const initialURL = this.linking?.getInitialURL?.();
-      if (typeof initialURL === 'string' && initialURL !== '/') {
+      if (typeof initialURL === 'string') {
         this.rootState = this.linking.getStateFromPath?.(initialURL, this.linking.config);
         this.initialState = this.rootState;
         if (this.rootState) {
