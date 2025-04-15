@@ -1,8 +1,8 @@
 import { addGlobalDomEventListener } from 'expo/dom/global';
 import React from 'react';
 
-import type { RouterStore } from '../global-state/router-store';
 import type { LinkToOptions } from '../global-state/routing';
+import { useRouter } from '../hooks';
 
 const ROUTER_LINK_TYPE = '$$router_link';
 const ROUTER_DISMISS_ALL_TYPE = '$$router_dismissAll';
@@ -41,7 +41,8 @@ export function emitDomLinkEvent(href: string, options: LinkToOptions) {
   return emitDomEvent(ROUTER_LINK_TYPE, { href, options });
 }
 
-export function useDomComponentNavigation(store: RouterStore) {
+export function useDomComponentNavigation() {
+  const router = useRouter();
   React.useEffect(() => {
     if (process.env.EXPO_OS === 'web') {
       return () => {};
@@ -49,21 +50,21 @@ export function useDomComponentNavigation(store: RouterStore) {
     return addGlobalDomEventListener<any>(({ type, data }) => {
       switch (type) {
         case ROUTER_LINK_TYPE:
-          store.linkTo(data.href, data.options);
+          router.linkTo(data.href, data.options);
           break;
         case ROUTER_DISMISS_ALL_TYPE:
-          store.dismissAll();
+          router.dismissAll();
           break;
         case ROUTER_DISMISS_TYPE:
-          store.dismiss(data.count);
+          router.dismiss(data.count);
           break;
         case ROUTER_BACK_TYPE:
-          store.goBack();
+          router.back();
           break;
         case ROUTER_SET_PARAMS_TYPE:
-          store.setParams(data.params);
+          router.setParams(data.params);
           break;
       }
     });
-  }, [store]);
+  }, [router]);
 }

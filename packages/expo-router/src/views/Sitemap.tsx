@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Pressable } from './Pressable';
 import { RouteNode } from '../Route';
-import { useExpoRouter } from '../global-state/router-store';
+import { store } from '../global-state/router-store';
 import { router } from '../imperative-api';
 import { Link } from '../link/Link';
 import { matchDeepDynamicRouteName } from '../matchers';
@@ -63,7 +63,7 @@ export function Sitemap() {
 }
 
 function FileSystemView() {
-  const routes = useExpoRouter().getSortedRoutes();
+  const routes = store.getSortedRoutes();
   return routes.map((route) => (
     <View key={route.contextKey} style={styles.itemContainer}>
       <FileItem route={route} />

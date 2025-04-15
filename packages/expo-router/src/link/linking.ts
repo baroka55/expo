@@ -9,7 +9,7 @@ import {
 import { getPathFromState } from '../fork/getPathFromState';
 import { getStateFromPath } from '../fork/getStateFromPath';
 import { getInitialURLWithTimeout } from '../fork/useLinking';
-import { RouterStore } from '../global-state/router-store';
+import { store } from '../global-state/router-store';
 import { NativeIntent } from '../types';
 
 const isExpoGo = typeof expo !== 'undefined' && globalThis.expo?.modules?.ExpoGo;
@@ -75,7 +75,7 @@ function parseExpoGoUrlFromListener<T extends string | null>(url: T): T {
   return url;
 }
 
-export function addEventListener(nativeLinking: NativeIntent | undefined, store: RouterStore) {
+export function addEventListener(nativeLinking: NativeIntent | undefined) {
   return (listener: (url: string) => void) => {
     let callback: (({ url }: { url: string }) => void) | undefined;
 

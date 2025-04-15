@@ -114,7 +114,7 @@ describe('hooks only', () => {
 });
 
 describe('imperative only', () => {
-  it('will throw if navigation is attempted before navigation is ready', async () => {
+  it.only('will throw if navigation is attempted before navigation is ready', async () => {
     renderRouter({
       index: function MyIndexRoute() {
         return <Text>Press me</Text>;
@@ -125,6 +125,7 @@ describe('imperative only', () => {
       },
       '+native-intent': {
         redirectSystemPath() {
+          console.log('123');
           return new Promise(() => {}); // This never resolves
         },
       },

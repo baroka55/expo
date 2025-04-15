@@ -7,7 +7,7 @@ import { Tabs } from '../layouts/Tabs';
 import { Redirect } from '../link/Link';
 import { act, renderRouter, screen } from '../testing-library';
 
-it('404', () => {
+it.only('404', () => {
   renderRouter(
     {
       index: () => null,

@@ -5,7 +5,7 @@ import { RouteNode } from './Route';
 import { State } from './fork/getPathFromState';
 import { getReactNavigationConfig } from './getReactNavigationConfig';
 import { type RedirectConfig } from './getRoutesCore';
-import { RouterStore } from './global-state/router-store';
+import { store } from './global-state/router-store';
 import {
   addEventListener,
   getInitialURL,
@@ -28,8 +28,8 @@ export function getNavigationConfig(routes: RouteNode, metaOnly: boolean = true)
 }
 
 export type ExpoLinkingOptions<T extends object = Record<string, unknown>> = LinkingOptions<T> & {
-  getPathFromState?: typeof getPathFromState;
-  getStateFromPath?: typeof getStateFromPath;
+  getPathFromState: typeof getPathFromState;
+  getStateFromPath: typeof getStateFromPath;
 };
 
 export type LinkingConfigOptions = {
@@ -40,10 +40,9 @@ export type LinkingConfigOptions = {
 };
 
 export function getLinkingConfig(
-  store: RouterStore,
   routes: RouteNode,
   context: RequireContext,
-  { metaOnly = true, serverUrl, redirects }: LinkingConfigOptions = {}
+  { metaOnly = true, serverUrl }: LinkingConfigOptions = {}
 ): ExpoLinkingOptions {
   // Returning `undefined` / `null from `getInitialURL` are valid values, so we need to track if it's been called.
   let hasCachedInitialUrl = false;
@@ -57,7 +56,6 @@ export function getLinkingConfig(
     : undefined;
 
   const config = getNavigationConfig(routes, metaOnly);
-  const boundGetStateFromPath = getStateFromPath.bind(store);
 
   return {
     prefixes: [],
@@ -93,10 +91,11 @@ export function getLinkingConfig(
         }
         hasCachedInitialUrl = true;
       }
+      console.log('getInitialURL', initialUrl);
       return initialUrl;
     },
-    subscribe: addEventListener(nativeLinking, store),
-    getStateFromPath: boundGetStateFromPath,
+    subscribe: addEventListener(nativeLinking),
+    getStateFromPath,
     getPathFromState(state: State, options: Parameters<typeof getPathFromState>[1]) {
       return (
         getPathFromState(state, {

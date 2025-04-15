@@ -46,7 +46,7 @@ describe('canDismiss', () => {
   });
 });
 
-test('dismiss', () => {
+test('dismiss()', () => {
   renderRouter(
     {
       a: () => null,
@@ -128,7 +128,7 @@ test('dismissAll nested', () => {
   // The last route should include a sub-state for /one/_layout
   // It will have three routes  (/one/index, /one/page, /one/two)
   // The last route should include a sub-state for /one/two/_layout
-  expect(store.rootStateSnapshot()).toStrictEqual({
+  expect(store.state).toStrictEqual({
     index: 0,
     key: expect.any(String),
     preloadedRoutes: [],
@@ -255,7 +255,7 @@ test('dismissAll nested', () => {
   // This should only dismissing the sub-state for /one/two/_layout
   testRouter.dismissAll();
   expect(screen).toHavePathname('/one/two');
-  expect(store.rootStateSnapshot()).toStrictEqual({
+  expect(store.state).toStrictEqual({
     index: 0,
     key: expect.any(String),
     preloadedRoutes: [],
@@ -370,7 +370,7 @@ test('dismissAll nested', () => {
   // This should only dismissing the sub-state for /one/_layout
   testRouter.dismissAll();
   expect(screen).toHavePathname('/one');
-  expect(store.rootStateSnapshot()).toStrictEqual({
+  expect(store.state).toStrictEqual({
     index: 0,
     key: expect.any(String),
     preloadedRoutes: [],
@@ -523,15 +523,25 @@ describe('singular', () => {
     );
 
     expect(screen).toHaveRouterState({
+      index: 0,
+      key: expect.any(String),
+      preloadedRoutes: [],
+      routeNames: ['__root'],
       routes: [
         {
+          key: expect.any(String),
           name: '__root',
           params: {
             slug: 'apple',
           },
           state: {
+            index: 0,
+            key: expect.any(String),
+            preloadedRoutes: [],
+            routeNames: ['[slug]', '_sitemap', '+not-found'],
             routes: [
               {
+                key: expect.any(String),
                 name: '[slug]',
                 params: {
                   slug: 'apple',
@@ -539,11 +549,13 @@ describe('singular', () => {
                 path: '/apple',
               },
             ],
-            stale: true,
+            stale: false,
+            type: 'stack',
           },
         },
       ],
-      stale: true,
+      stale: false,
+      type: 'stack',
     });
 
     // Normally pushing would add a new route, but since we have singular set to true

@@ -12,7 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { NavigationContainer as UpstreamNavigationContainer } from './fork/NavigationContainer';
 import { ExpoLinkingOptions, INTERNAL_SLOT_NAME } from './getLinkingConfig';
-import { useInitializeExpoRouter } from './global-state/router-store';
+import { useStore } from './global-state/router-store';
 import { ServerContext, ServerContextType } from './global-state/serverLocationContext';
 import { useDomComponentNavigation } from './link/useDomComponentNavigation';
 import { Screen } from './primitives';
@@ -43,6 +43,10 @@ const INITIAL_METRICS =
         insets: { top: 0, left: 0, right: 0, bottom: 0 },
       }
     : undefined;
+
+const documentTitle = {
+  enabled: false,
+};
 
 /**
  * @hidden
@@ -120,12 +124,9 @@ function ContextNavigator({
     ? `${serverContext.location.pathname}${serverContext.location.search}`
     : undefined;
 
-  const store = useInitializeExpoRouter(context, {
-    ...linking,
-    serverUrl,
-  });
+  const store = useStore(context, linking, serverUrl);
 
-  useDomComponentNavigation(store);
+  useDomComponentNavigation();
 
   if (store.shouldShowTutorial()) {
     SplashScreen.hideAsync();
@@ -145,12 +146,10 @@ function ContextNavigator({
   return (
     <UpstreamNavigationContainer
       ref={store.navigationRef}
-      initialState={store.initialState}
+      initialState={store.state}
       linking={store.linking as LinkingOptions<any>}
       onUnhandledAction={onUnhandledAction}
-      documentTitle={{
-        enabled: false,
-      }}>
+      documentTitle={documentTitle}>
       <ServerContext.Provider value={serverContext}>
         <WrapperComponent>
           <Content component={store.rootComponent} />
@@ -162,6 +161,7 @@ function ContextNavigator({
 
 function Content({ component }: { component: ComponentType<any> }) {
   const { state, descriptors, NavigationContent } = useNavigationBuilder(StackRouter, {
+    id: '__root',
     children: <Screen name={INTERNAL_SLOT_NAME} component={component} />,
   });
 

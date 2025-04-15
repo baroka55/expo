@@ -222,6 +222,22 @@ it('should go back to a previous route in different stacks', () => {
                             screen: 'e',
                           },
                           path: undefined,
+                          state: {
+                            index: 0,
+                            key: expect.any(String),
+                            preloadedRoutes: [],
+                            routeNames: ['e', 'd'],
+                            routes: [
+                              {
+                                key: expect.any(String),
+                                name: 'e',
+                                params: {},
+                                path: undefined,
+                              },
+                            ],
+                            stale: false,
+                            type: 'stack',
+                          },
                         },
                       ],
                       stale: false,
@@ -373,6 +389,22 @@ it('will replace the route if the provided href is not in the history', () => {
                           params: {
                             params: {},
                             screen: 'e',
+                          },
+                          state: {
+                            index: 0,
+                            key: expect.any(String),
+                            preloadedRoutes: [],
+                            routeNames: ['e', 'd'],
+                            routes: [
+                              {
+                                key: expect.any(String),
+                                name: 'e',
+                                params: {},
+                                path: undefined,
+                              },
+                            ],
+                            stale: false,
+                            type: 'stack',
                           },
                         },
                       ],
