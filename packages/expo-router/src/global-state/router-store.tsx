@@ -31,19 +31,20 @@ type StoreRef = {
   navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
   routeNode: RouteNode | null;
   rootComponent: ComponentType<any>;
-  state: StoreState;
+  state?: StoreState;
   linking?: ExpoLinkingOptions;
   config: any;
   redirects: (readonly [RegExp, RedirectConfig, boolean])[];
 };
 
 const storeRef = {
-  current: {
-    state: {},
-  } as StoreRef,
+  current: {} as StoreRef,
 };
 
 const routeInfoCache = new WeakMap<StoreState, UrlObject>();
+
+let splashScreenAnimationFrame: number | undefined;
+let hasAttemptedToHideSplash = false;
 
 export const store = {
   shouldShowTutorial() {
@@ -55,8 +56,18 @@ export const store = {
   get navigationRef() {
     return storeRef.current.navigationRef;
   },
-  getRouteInfo(state?: StoreState) {
-    state ??= storeRef.current.state;
+  getRouteInfo(): UrlObject {
+    const state = storeRef.current.state;
+
+    if (!state) {
+      return {
+        unstable_globalHref: '',
+        pathname: '',
+        params: {},
+        segments: [],
+        isIndex: true,
+      };
+    }
 
     let routeInfo = routeInfoCache.get(state);
     if (!routeInfo) {
@@ -86,6 +97,18 @@ export const store = {
   },
   get linking() {
     return storeRef.current.linking;
+  },
+  setState(state: StoreState) {
+    storeRef.current.state = state;
+  },
+  onReady() {
+    if (!hasAttemptedToHideSplash) {
+      hasAttemptedToHideSplash = true;
+      // NOTE(EvanBacon): `navigationRef.isReady` is sometimes not true when state is called initially.
+      splashScreenAnimationFrame = requestAnimationFrame(() => {
+        SplashScreen._internal_maybeHideAsync?.();
+      });
+    }
   },
   assertIsReady() {
     if (!storeRef.current.navigationRef.isReady()) {
@@ -182,41 +205,17 @@ export function useStore(
     rootComponent,
     linking,
     redirects,
-    state: initialState || {
-      key: '',
-      index: 0,
-      routeNames: [],
-      routes: [],
-      type: '',
-      stale: true,
-    },
+    state: initialState,
   };
-
-  let splashScreenAnimationFrame: number | undefined;
-  let hasAttemptedToHideSplash = false;
-
-  const navigationRefSubscription = navigationRef.addListener('state', () => {
-    const state = navigationRef.getRootState();
-
-    if (!hasAttemptedToHideSplash) {
-      hasAttemptedToHideSplash = true;
-      // NOTE(EvanBacon): `navigationRef.isReady` is sometimes not true when state is called initially.
-      splashScreenAnimationFrame = requestAnimationFrame(() => {
-        SplashScreen._internal_maybeHideAsync?.();
-      });
-    }
-
-    // This can sometimes be undefined when an error is thrown in the Root Layout Route.
-    // Additionally that state may already equal the rootState if it was updated within a hook
-    if (state !== storeRef.current.state) {
-      storeRef.current.state = state;
-    }
-  });
 
   useEffect(() => {
     return () => {
-      if (splashScreenAnimationFrame) cancelAnimationFrame(splashScreenAnimationFrame);
-      if (navigationRefSubscription) navigationRefSubscription();
+      // listener();
+
+      if (splashScreenAnimationFrame) {
+        cancelAnimationFrame(splashScreenAnimationFrame);
+        splashScreenAnimationFrame = undefined;
+      }
     };
   });
 

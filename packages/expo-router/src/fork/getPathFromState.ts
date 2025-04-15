@@ -170,8 +170,29 @@ export function getPathDataFromState<ParamList extends object>(
         }
       }
 
+      let routeState = route.state;
+      const possibleScreens = currentOptions[route.name].screens;
+      const params = route.params;
+
+      if (!route.state && params && possibleScreens) {
+        const childScreen = Object.keys(possibleScreens).find((screen) => {
+          return screen.slice(1, -1) in params || screen.slice(4, -1) in params;
+        });
+
+        if (childScreen) {
+          routeState = {
+            routes: [
+              {
+                name: childScreen,
+                params,
+              },
+            ],
+          };
+        }
+      }
+
       // If there is no `screens` property or no nested state, we return pattern
-      if (!currentOptions[route.name].screens || route.state === undefined) {
+      if (!currentOptions[route.name].screens || !routeState) {
         // START FORK
         // Expo Router allows you to navigate to a (group) and not specify a target screen
         // This is different from React Navigation, which requires a target screen
@@ -218,9 +239,9 @@ export function getPathDataFromState<ParamList extends object>(
         // END FORK
       } else {
         index =
-          typeof route.state.index === 'number' ? route.state.index : route.state.routes.length - 1;
+          typeof routeState.index === 'number' ? routeState.index : routeState.routes.length - 1;
 
-        const nextRoute = route.state.routes[index];
+        const nextRoute = routeState.routes[index];
         const nestedConfig = currentOptions[route.name].screens;
 
         // if there is config for next route name, we go deeper

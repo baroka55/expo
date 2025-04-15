@@ -114,7 +114,7 @@ describe('hooks only', () => {
 });
 
 describe('imperative only', () => {
-  it.only('will throw if navigation is attempted before navigation is ready', async () => {
+  it('will throw if navigation is attempted before navigation is ready', async () => {
     renderRouter({
       index: function MyIndexRoute() {
         return <Text>Press me</Text>;
@@ -125,7 +125,6 @@ describe('imperative only', () => {
       },
       '+native-intent': {
         redirectSystemPath() {
-          console.log('123');
           return new Promise(() => {}); // This never resolves
         },
       },
@@ -433,7 +432,7 @@ it('can push back from a nested modal to a nested sibling', async () => {
   expect(screen).toHavePathname('/slot');
 });
 
-it('can pop back from a nested modal to a nested sibling', async () => {
+it.only('can pop back from a nested modal to a nested sibling', async () => {
   renderRouter({
     _layout: () => (
       <Stack>
@@ -442,7 +441,6 @@ it('can pop back from a nested modal to a nested sibling', async () => {
         <Stack.Screen name="(group)" options={{ presentation: 'modal' }} />
       </Stack>
     ),
-
     index: () => <Text />,
 
     'slot/_layout': () => <Slot />,

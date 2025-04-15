@@ -515,7 +515,8 @@ describe('singular', () => {
             <Stack.Screen name="[slug]" dangerouslySingular />
           </Stack>
         ),
-        '[slug]': () => <Text>slug</Text>,
+        '[slug]/_layout': () => <Stack />,
+        '[slug]/index': () => <Text>slug</Text>,
       },
       {
         initialUrl: '/apple',
@@ -546,7 +547,24 @@ describe('singular', () => {
                 params: {
                   slug: 'apple',
                 },
-                path: '/apple',
+                state: {
+                  index: 0,
+                  key: expect.any(String),
+                  preloadedRoutes: [],
+                  routeNames: ['index'],
+                  routes: [
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'apple',
+                      },
+                      path: '/apple',
+                    },
+                  ],
+                  stale: false,
+                  type: 'stack',
+                },
               },
             ],
             stale: false,
@@ -585,7 +603,32 @@ describe('singular', () => {
                 params: {
                   slug: 'apple',
                 },
-                path: '/apple',
+                state: {
+                  index: 1,
+                  key: expect.any(String),
+                  preloadedRoutes: [],
+                  routeNames: ['index'],
+                  routes: [
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'apple',
+                      },
+                      path: '/apple',
+                    },
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'apple',
+                      },
+                      path: undefined,
+                    },
+                  ],
+                  stale: false,
+                  type: 'stack',
+                },
               },
             ],
             stale: false,
@@ -623,15 +666,62 @@ describe('singular', () => {
                 params: {
                   slug: 'apple',
                 },
-                path: '/apple',
+                state: {
+                  index: 1,
+                  key: expect.any(String),
+                  preloadedRoutes: [],
+                  routeNames: ['index'],
+                  routes: [
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'apple',
+                      },
+                      path: '/apple',
+                    },
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'apple',
+                      },
+                      path: undefined,
+                    },
+                  ],
+                  stale: false,
+                  type: 'stack',
+                },
               },
               {
                 key: expect.any(String),
                 name: '[slug]',
                 params: {
+                  params: {
+                    slug: 'banana',
+                  },
+                  screen: 'index',
                   slug: 'banana',
                 },
                 path: undefined,
+                state: {
+                  index: 0,
+                  key: expect.any(String),
+                  preloadedRoutes: [],
+                  routeNames: ['index'],
+                  routes: [
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'banana',
+                      },
+                      path: undefined,
+                    },
+                  ],
+                  stale: false,
+                  type: 'stack',
+                },
               },
             ],
             stale: false,
@@ -668,9 +758,31 @@ describe('singular', () => {
                 key: expect.any(String),
                 name: '[slug]',
                 params: {
+                  params: {
+                    slug: 'banana',
+                  },
+                  screen: 'index',
                   slug: 'banana',
                 },
                 path: undefined,
+                state: {
+                  index: 0,
+                  key: expect.any(String),
+                  preloadedRoutes: [],
+                  routeNames: ['index'],
+                  routes: [
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'banana',
+                      },
+                      path: undefined,
+                    },
+                  ],
+                  stale: false,
+                  type: 'stack',
+                },
               },
               {
                 key: expect.any(String),
@@ -678,7 +790,33 @@ describe('singular', () => {
                 params: {
                   slug: 'apple',
                 },
-                path: '/apple',
+                path: undefined,
+                state: {
+                  index: 1,
+                  key: expect.any(String),
+                  preloadedRoutes: [],
+                  routeNames: ['index'],
+                  routes: [
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'apple',
+                      },
+                      path: '/apple',
+                    },
+                    {
+                      key: expect.any(String),
+                      name: 'index',
+                      params: {
+                        slug: 'apple',
+                      },
+                      path: undefined,
+                    },
+                  ],
+                  stale: false,
+                  type: 'stack',
+                },
               },
             ],
             stale: false,

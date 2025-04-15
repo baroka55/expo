@@ -4,6 +4,7 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React from 'react';
 
 import { LocalRouteParamsContext } from './Route';
+import { INTERNAL_SLOT_NAME } from './getLinkingConfig';
 import { store } from './global-state/router-store';
 import { router, Router } from './imperative-api';
 import { RouteParams, RouteSegments, UnknownOutputParams, Route } from './types';
@@ -24,12 +25,13 @@ import { RouteParams, RouteSegments, UnknownOutputParams, Route } from './types'
  * ```
  */
 export function useRootNavigationState() {
-  return useNavigation<NavigationProp<object, never, string>>().getParent('__root')!.getState();
+  return useNavigation<NavigationProp<object, never, string>>()
+    .getParent(INTERNAL_SLOT_NAME)!
+    .getState();
 }
 
 export function useRouteInfo() {
-  const state = useRootNavigationState();
-  return store.getRouteInfo(state);
+  return store.getRouteInfo();
 }
 
 /**

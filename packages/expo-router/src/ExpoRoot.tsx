@@ -12,7 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { NavigationContainer as UpstreamNavigationContainer } from './fork/NavigationContainer';
 import { ExpoLinkingOptions, INTERNAL_SLOT_NAME } from './getLinkingConfig';
-import { useStore } from './global-state/router-store';
+import { store, useStore } from './global-state/router-store';
 import { ServerContext, ServerContextType } from './global-state/serverLocationContext';
 import { useDomComponentNavigation } from './link/useDomComponentNavigation';
 import { Screen } from './primitives';
@@ -149,20 +149,20 @@ function ContextNavigator({
       initialState={store.state}
       linking={store.linking as LinkingOptions<any>}
       onUnhandledAction={onUnhandledAction}
-      documentTitle={documentTitle}>
+      documentTitle={documentTitle}
+      onReady={store.onReady}>
       <ServerContext.Provider value={serverContext}>
         <WrapperComponent>
-          <Content component={store.rootComponent} />
+          <Content />
         </WrapperComponent>
       </ServerContext.Provider>
     </UpstreamNavigationContainer>
   );
 }
 
-function Content({ component }: { component: ComponentType<any> }) {
+function Content() {
   const { state, descriptors, NavigationContent } = useNavigationBuilder(StackRouter, {
-    id: '__root',
-    children: <Screen name={INTERNAL_SLOT_NAME} component={component} />,
+    children: <Screen name={INTERNAL_SLOT_NAME} component={store.rootComponent} />,
   });
 
   return <NavigationContent>{descriptors[state.routes[0].key].render()}</NavigationContent>;

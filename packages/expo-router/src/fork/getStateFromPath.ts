@@ -6,7 +6,7 @@ import { findFocusedRoute } from './findFocusedRoute';
 import type { ExpoOptions, ExpoRouteConfig } from './getStateFromPath-forks';
 import * as expo from './getStateFromPath-forks';
 import { INTERNAL_SLOT_NAME } from '../getLinkingConfig';
-import { RouterStore } from '../global-state/router-store';
+import { store } from '../global-state/router-store';
 
 export type Options<ParamList extends object> = ExpoOptions & {
   path?: string;
@@ -68,15 +68,14 @@ type ConfigResources = {
  * @param options Extra options to fine-tune how to parse the path.
  */
 export function getStateFromPath<ParamList extends object>(
-  // START FORK
-  this: RouterStore | undefined | void,
-  // END FORK
   path: string,
   options?: Options<ParamList>
 ): ResultState | undefined {
   const { initialRoutes, configs, configWithRegexes } = getConfigResources(
     options,
-    this?.routeInfo?.segments
+    // START FORK
+    store.getRouteInfo()?.segments
+    // END FORK
   );
 
   const screens = options?.screens;

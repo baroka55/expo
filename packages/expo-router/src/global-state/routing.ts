@@ -64,7 +64,7 @@ export function goBack() {
     return;
   }
   store.assertIsReady();
-  store.navigationRef?.current?.goBack();
+  store.navigationRef.goBack();
 }
 
 export function canGoBack(): boolean {

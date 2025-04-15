@@ -91,7 +91,6 @@ export function getLinkingConfig(
         }
         hasCachedInitialUrl = true;
       }
-      console.log('getInitialURL', initialUrl);
       return initialUrl;
     },
     subscribe: addEventListener(nativeLinking),
