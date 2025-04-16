@@ -14,6 +14,7 @@ import {
 import { Stack } from '../layouts/Stack';
 import { Tabs } from '../layouts/Tabs';
 import { act, fireEvent, renderRouter, screen } from '../testing-library';
+import { withConsoleDisabledAsync } from '@expo/fingerprint/cli/build/utils/withConsoleDisabledAsync';
 
 it('should respect `unstable_settings', () => {
   const render = (options: any = {}) =>
@@ -1637,6 +1638,7 @@ it('respects nested unstable settings', async () => {
 
 describe('navigation action fallbacks', () => {
   function runPushTest() {
+    // This page does not exist
     act(() => router.navigate('/'));
     expect(screen).toHavePathname('/');
 
@@ -1652,6 +1654,7 @@ describe('navigation action fallbacks', () => {
   }
 
   function runReplaceTest() {
+    // This page does not exist
     act(() => router.navigate('/'));
     expect(screen).toHavePathname('/');
 

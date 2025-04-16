@@ -1,4 +1,5 @@
 import { renderHook as tlRenderHook } from '@testing-library/react-native';
+import { useNavigation } from 'expo-router';
 import React from 'react';
 import { Text } from 'react-native';
 import { expectType } from 'tsd';
@@ -14,7 +15,6 @@ import {
 import Stack from '../layouts/Stack';
 import { act, renderRouter } from '../testing-library';
 import { inMemoryContext } from '../testing-library/context-stubs';
-import { useNavigation } from 'expo-router';
 
 /*
  * Creates an Expo Router context around the hook, where every router renders the hook

@@ -5,8 +5,8 @@ import { RouteNode } from './Route';
 import { INTERNAL_SLOT_NAME } from './constants';
 import { State } from './fork/getPathFromState';
 import { getReactNavigationConfig } from './getReactNavigationConfig';
-import { type RedirectConfig } from './getRoutesCore';
-import { store, StoreRedirects } from './global-state/router-store';
+import { applyRedirects } from './getRoutesRedirects';
+import { StoreRedirects } from './global-state/router-store';
 import {
   addEventListener,
   getInitialURL,
@@ -14,7 +14,6 @@ import {
   getStateFromPath,
 } from './link/linking';
 import { NativeIntent, RequireContext } from './types';
-import { applyRedirects } from './getRoutesRedirects';
 
 export function getNavigationConfig(routes: RouteNode, metaOnly: boolean = true) {
   return {
@@ -81,6 +80,9 @@ export function getLinkingConfig(
             }
           } else if (initialUrl) {
             initialUrl = initialUrl.then((url) => {
+              if (typeof url !== 'string') {
+                return url;
+              }
               url = applyRedirects(url, redirects);
               if (url && typeof nativeLinking?.redirectSystemPath === 'function') {
                 return nativeLinking.redirectSystemPath({ path: url, initial: true });

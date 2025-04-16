@@ -144,7 +144,7 @@ export function useSegments() {
  * ```
  */
 export function usePathname(): string {
-  return store.getRouteInfo().pathname;
+  return useRouteInfo().pathname;
 }
 
 /**

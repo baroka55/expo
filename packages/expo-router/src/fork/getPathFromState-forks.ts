@@ -3,6 +3,7 @@ import * as queryString from 'query-string';
 
 import type { Options, State, StringifyConfig } from './getPathFromState';
 import { matchDeepDynamicRouteName, matchDynamicName, matchGroupName } from '../matchers';
+import { NOT_FOUND_NAME } from '../constants';
 
 export type ExpoOptions = {
   preserveDynamicRoutes?: boolean;
@@ -112,7 +113,7 @@ export function getPathWithConventionsCollapsed({
       if (p.startsWith('*')) {
         if (preserveDynamicRoutes) {
           if (name === 'not-found') {
-            return '+not-found';
+            return NOT_FOUND_NAME;
           }
 
           return `[...${name}]`;

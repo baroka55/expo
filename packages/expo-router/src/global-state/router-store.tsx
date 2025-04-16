@@ -5,26 +5,40 @@ import {
   NavigationState,
   PartialState,
   useNavigationContainerRef,
-  useStateForPath,
 } from '@react-navigation/native';
 import Constants from 'expo-constants';
-import { ComponentType, Fragment, useEffect, useState, useSyncExternalStore } from 'react';
+import { ComponentType, Fragment, useEffect, useSyncExternalStore } from 'react';
 import { Platform } from 'react-native';
 
-import { UrlObject, getRouteInfoFromState } from '../LocationProvider';
 import { RouteNode } from '../Route';
-import { getPathDataFromState, getPathFromState } from '../fork/getPathFromState';
 import { routePatternToRegex } from '../fork/getStateFromPath-forks';
 import { ExpoLinkingOptions, LinkingConfigOptions, getLinkingConfig } from '../getLinkingConfig';
 import { parseRouteSegments } from '../getReactNavigationConfig';
 import { getRoutes } from '../getRoutes';
 import { RedirectConfig } from '../getRoutesCore';
+import { defaultRouteInfo, getRouteInfoFromFocusedState, UrlObject } from '../routeInfo';
 import { RequireContext } from '../types';
 import { getQualifiedRouteComponent } from '../useScreens';
 import { shouldLinkExternally } from '../utils/url';
 import * as SplashScreen from '../views/Splash';
 
-export type FocusedRouteState = NonNullable<ReturnType<typeof useStateForPath>>;
+type FocusedRouteParams = {
+  [key: string]: string | string[];
+} & {
+  params?: FocusedRouteParams;
+};
+
+export type FocusedRouteState = {
+  routes: [
+    {
+      key?: string;
+      name: string;
+      path?: string;
+      state?: FocusedRouteState;
+      params?: FocusedRouteParams;
+    },
+  ];
+};
 export type StoreRedirects = readonly [RegExp, RedirectConfig, boolean];
 type ReactNavigationState = NavigationState | PartialState<NavigationState>;
 
@@ -47,14 +61,6 @@ const routeInfoCache = new WeakMap<FocusedRouteState, UrlObject>();
 
 let splashScreenAnimationFrame: number | undefined;
 let hasAttemptedToHideSplash = false;
-
-const defaultRouteInfo: UrlObject = {
-  unstable_globalHref: '',
-  pathname: '/',
-  params: {},
-  segments: [],
-  isIndex: true,
-};
 
 export const store = {
   shouldShowTutorial() {
@@ -79,19 +85,7 @@ export const store = {
     let routeInfo = routeInfoCache.get(state);
 
     if (!routeInfo) {
-      routeInfo = getRouteInfoFromState(
-        (state: Parameters<typeof getPathFromState>[0], asPath: boolean) => {
-          return getPathDataFromState(state, {
-            screens: {},
-            ...storeRef.current.linking?.config,
-            preserveDynamicRoutes: asPath,
-            preserveGroups: asPath,
-            shouldEncodeURISegment: false,
-          });
-        },
-        state
-      );
-
+      routeInfo = getRouteInfoFromFocusedState(state);
       routeInfoCache.set(state, routeInfo);
     }
 
@@ -119,12 +113,12 @@ export const store = {
     }
 
     storeRef.current.navigationRef.addListener('state', (e) => {
-      for (const callback of routeInfoSubscribers) {
-        callback();
-      }
-
       if (e.data.state) {
         storeRef.current.state = e.data.state;
+      }
+
+      for (const callback of routeInfoSubscribers) {
+        callback();
       }
     });
   },
