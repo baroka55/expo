@@ -102,35 +102,21 @@ it('push should include (group)/index as an anchor route when using withAnchor',
 
   // Initial stale state
   expect(store.state).toStrictEqual({
-    index: 0,
-    key: expect.any(String),
-    preloadedRoutes: [],
-    routeNames: ['__root'],
     routes: [
       {
-        key: expect.any(String),
         name: '__root',
-        params: undefined,
         state: {
-          index: 0,
-          key: expect.any(String),
-          preloadedRoutes: [],
-          routeNames: ['index', '(group)', '_sitemap', '+not-found'],
           routes: [
             {
-              key: expect.any(String),
               name: 'index',
-              params: undefined,
               path: '/',
             },
           ],
-          stale: false,
-          type: 'stack',
+          stale: true,
         },
       },
     ],
-    stale: false,
-    type: 'stack',
+    stale: true,
   });
 
   act(() => router.push('/orange', { withAnchor: true }));
@@ -206,35 +192,21 @@ it('push should ignore (group)/index as an initial route if no anchor is specifi
 
   // Initial stale state
   expect(store.state).toStrictEqual({
-    index: 0,
-    key: expect.any(String),
-    preloadedRoutes: [],
-    routeNames: ['__root'],
     routes: [
       {
-        key: expect.any(String),
         name: '__root',
-        params: undefined,
         state: {
-          index: 0,
-          key: expect.any(String),
-          preloadedRoutes: [],
-          routeNames: ['index', '(group)', '_sitemap', '+not-found'],
           routes: [
             {
-              key: expect.any(String),
               name: 'index',
-              params: undefined,
               path: '/',
             },
           ],
-          stale: false,
-          type: 'stack',
+          stale: true,
         },
       },
     ],
-    stale: false,
-    type: 'stack',
+    stale: true,
   });
 
   act(() => router.push('/orange'));
@@ -269,22 +241,6 @@ it('push should ignore (group)/index as an initial route if no anchor is specifi
                 screen: 'orange',
               },
               path: undefined,
-              state: {
-                index: 0,
-                key: expect.any(String),
-                preloadedRoutes: [],
-                routeNames: ['test', 'orange'],
-                routes: [
-                  {
-                    key: expect.any(String),
-                    name: 'orange',
-                    params: {},
-                    path: undefined,
-                  },
-                ],
-                stale: false,
-                type: 'stack',
-              },
             },
           ],
           stale: false,

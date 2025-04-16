@@ -4,6 +4,7 @@ import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
 import { ResultState } from '../fork/getStateFromPath';
+import { applyRedirects } from '../getRoutesRedirects';
 import { resolveHref, resolveHrefStringWithSegments } from '../link/href';
 import {
   emitDomDismiss,
@@ -168,10 +169,10 @@ export function linkTo(href: Href, options: LinkToOptions = {}) {
   }
 
   const rootState = navigationRef.getRootState();
-  const routeInfo = store.getRouteInfo(rootState);
+  const routeInfo = store.getRouteInfo();
 
   href = resolveHrefStringWithSegments(href, routeInfo, options);
-  href = store.applyRedirects(href);
+  href = applyRedirects(href);
 
   // If the href is undefined, it means that the redirect has already been handled the navigation
   if (!href) {

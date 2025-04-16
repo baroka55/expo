@@ -3,48 +3,58 @@
 import {
   NavigationContainerRefWithCurrent,
   NavigationState,
+  PartialState,
   useNavigationContainerRef,
+  useStateForPath,
 } from '@react-navigation/native';
 import Constants from 'expo-constants';
-import * as Linking from 'expo-linking';
-import { ComponentType, Fragment, useEffect } from 'react';
+import { ComponentType, Fragment, useEffect, useState, useSyncExternalStore } from 'react';
 import { Platform } from 'react-native';
 
 import { UrlObject, getRouteInfoFromState } from '../LocationProvider';
 import { RouteNode } from '../Route';
 import { getPathDataFromState, getPathFromState } from '../fork/getPathFromState';
-import { ResultState } from '../fork/getStateFromPath';
-import { cleanPath, routePatternToRegex } from '../fork/getStateFromPath-forks';
+import { routePatternToRegex } from '../fork/getStateFromPath-forks';
 import { ExpoLinkingOptions, LinkingConfigOptions, getLinkingConfig } from '../getLinkingConfig';
 import { parseRouteSegments } from '../getReactNavigationConfig';
 import { getRoutes } from '../getRoutes';
 import { RedirectConfig } from '../getRoutesCore';
-import { convertRedirect } from '../getRoutesRedirects';
 import { RequireContext } from '../types';
 import { getQualifiedRouteComponent } from '../useScreens';
 import { shouldLinkExternally } from '../utils/url';
 import * as SplashScreen from '../views/Splash';
 
-export type StoreState = NavigationState | ResultState;
+export type FocusedRouteState = NonNullable<ReturnType<typeof useStateForPath>>;
+export type StoreRedirects = readonly [RegExp, RedirectConfig, boolean];
+type ReactNavigationState = NavigationState | PartialState<NavigationState>;
 
 type StoreRef = {
   navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
   routeNode: RouteNode | null;
   rootComponent: ComponentType<any>;
-  state?: StoreState;
+  state?: ReactNavigationState;
+  focusedState?: FocusedRouteState;
   linking?: ExpoLinkingOptions;
   config: any;
-  redirects: (readonly [RegExp, RedirectConfig, boolean])[];
+  redirects: StoreRedirects[];
 };
 
 const storeRef = {
   current: {} as StoreRef,
 };
 
-const routeInfoCache = new WeakMap<StoreState, UrlObject>();
+const routeInfoCache = new WeakMap<FocusedRouteState, UrlObject>();
 
 let splashScreenAnimationFrame: number | undefined;
 let hasAttemptedToHideSplash = false;
+
+const defaultRouteInfo: UrlObject = {
+  unstable_globalHref: '',
+  pathname: '/',
+  params: {},
+  segments: [],
+  isIndex: true,
+};
 
 export const store = {
   shouldShowTutorial() {
@@ -53,23 +63,21 @@ export const store = {
   get state() {
     return storeRef.current.state;
   },
+  get focusedState() {
+    return storeRef.current.focusedState;
+  },
   get navigationRef() {
     return storeRef.current.navigationRef;
   },
   getRouteInfo(): UrlObject {
-    const state = storeRef.current.state;
+    const state = storeRef.current.focusedState;
 
     if (!state) {
-      return {
-        unstable_globalHref: '',
-        pathname: '',
-        params: {},
-        segments: [],
-        isIndex: true,
-      };
+      return defaultRouteInfo;
     }
 
     let routeInfo = routeInfoCache.get(state);
+
     if (!routeInfo) {
       routeInfo = getRouteInfoFromState(
         (state: Parameters<typeof getPathFromState>[0], asPath: boolean) => {
@@ -98,8 +106,8 @@ export const store = {
   get linking() {
     return storeRef.current.linking;
   },
-  setState(state: StoreState) {
-    storeRef.current.state = state;
+  setFocusedState(state: FocusedRouteState) {
+    storeRef.current.focusedState = state;
   },
   onReady() {
     if (!hasAttemptedToHideSplash) {
@@ -109,6 +117,16 @@ export const store = {
         SplashScreen._internal_maybeHideAsync?.();
       });
     }
+
+    storeRef.current.navigationRef.addListener('state', (e) => {
+      for (const callback of routeInfoSubscribers) {
+        callback();
+      }
+
+      if (e.data.state) {
+        storeRef.current.state = e.data.state;
+      }
+    });
   },
   assertIsReady() {
     if (!storeRef.current.navigationRef.isReady()) {
@@ -116,31 +134,6 @@ export const store = {
         'Attempted to navigate before mounting the Root Layout component. Ensure the Root Layout component is rendering a Slot, or other navigator on the first render.'
       );
     }
-  },
-  applyRedirects<T extends string | null | undefined>(url: T): T {
-    if (typeof url !== 'string') {
-      return url;
-    }
-
-    const nextUrl = cleanPath(url);
-    const redirect = store.redirects.find(([regex]) => regex.test(nextUrl));
-
-    if (!redirect) {
-      return url;
-    }
-
-    // If the redirect is external, open the URL
-    if (redirect[2]) {
-      let href = redirect[1].destination as T & string;
-      if (href.startsWith('//') && Platform.OS !== 'web') {
-        href = `https:${href}` as T & string;
-      }
-
-      Linking.openURL(href);
-      return href;
-    }
-
-    return store.applyRedirects<T>(convertRedirect(url, redirect[1]) as T);
   },
 };
 
@@ -154,7 +147,7 @@ export function useStore(
 
   let linking: ExpoLinkingOptions | undefined;
   let rootComponent: ComponentType<any> = Fragment;
-  let initialState: StoreState | undefined;
+  let initialState: ReactNavigationState | undefined;
 
   const routeNode = getRoutes(context, {
     ...config,
@@ -162,11 +155,23 @@ export function useStore(
     platform: Platform.OS,
   });
 
+  const redirects: StoreRedirects[] = [config?.redirects, config?.rewrites]
+    .filter(Boolean)
+    .flat()
+    .map((route) => {
+      return [
+        routePatternToRegex(parseRouteSegments(route.source)),
+        route,
+        shouldLinkExternally(route.destination),
+      ];
+    });
+
   if (routeNode) {
     // We have routes, so get the linking config and the root component
     linking = getLinkingConfig(routeNode, context, {
       metaOnly: linkingConfigOptions.metaOnly,
       serverUrl,
+      redirects,
     });
     rootComponent = getQualifiedRouteComponent(routeNode);
 
@@ -186,17 +191,6 @@ export function useStore(
     // In development, we will show the onboarding screen
     rootComponent = Fragment;
   }
-
-  const redirects = [config?.redirects, config?.rewrites]
-    .filter(Boolean)
-    .flat()
-    .map((route) => {
-      return [
-        routePatternToRegex(parseRouteSegments(route.source)),
-        route,
-        shouldLinkExternally(route.destination),
-      ] as const;
-    });
 
   storeRef.current = {
     navigationRef,
@@ -220,4 +214,16 @@ export function useStore(
   });
 
   return store;
+}
+
+const routeInfoSubscribers = new Set<() => void>();
+const routeInfoSubscribe = (callback: () => void) => {
+  routeInfoSubscribers.add(callback);
+  return () => {
+    routeInfoSubscribers.delete(callback);
+  };
+};
+
+export function useRouteInfo() {
+  return useSyncExternalStore(routeInfoSubscribe, store.getRouteInfo, store.getRouteInfo);
 }

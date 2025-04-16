@@ -11,7 +11,7 @@ import { StatusBar, useColorScheme, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { NavigationContainer as UpstreamNavigationContainer } from './fork/NavigationContainer';
-import { ExpoLinkingOptions, INTERNAL_SLOT_NAME } from './getLinkingConfig';
+import { ExpoLinkingOptions } from './getLinkingConfig';
 import { store, useStore } from './global-state/router-store';
 import { ServerContext, ServerContextType } from './global-state/serverLocationContext';
 import { useDomComponentNavigation } from './link/useDomComponentNavigation';
@@ -19,6 +19,7 @@ import { Screen } from './primitives';
 import { RequireContext } from './types';
 import { canOverrideStatusBarBehavior } from './utils/statusbar';
 import * as SplashScreen from './views/Splash';
+import { INTERNAL_SLOT_NAME } from './constants';
 
 export type ExpoRootProps = {
   context: RequireContext;

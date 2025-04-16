@@ -2,10 +2,11 @@ import { getActionFromState, LinkingOptions } from '@react-navigation/native';
 import { Platform } from 'expo-modules-core';
 
 import { RouteNode } from './Route';
+import { INTERNAL_SLOT_NAME } from './constants';
 import { State } from './fork/getPathFromState';
 import { getReactNavigationConfig } from './getReactNavigationConfig';
 import { type RedirectConfig } from './getRoutesCore';
-import { store } from './global-state/router-store';
+import { store, StoreRedirects } from './global-state/router-store';
 import {
   addEventListener,
   getInitialURL,
@@ -13,8 +14,7 @@ import {
   getStateFromPath,
 } from './link/linking';
 import { NativeIntent, RequireContext } from './types';
-
-export const INTERNAL_SLOT_NAME = '__root';
+import { applyRedirects } from './getRoutesRedirects';
 
 export function getNavigationConfig(routes: RouteNode, metaOnly: boolean = true) {
   return {
@@ -36,13 +36,13 @@ export type LinkingConfigOptions = {
   metaOnly?: boolean;
   serverUrl?: string;
   getInitialURL?: typeof getInitialURL;
-  redirects?: RedirectConfig[];
+  redirects?: StoreRedirects[];
 };
 
 export function getLinkingConfig(
   routes: RouteNode,
   context: RequireContext,
-  { metaOnly = true, serverUrl }: LinkingConfigOptions = {}
+  { metaOnly = true, serverUrl, redirects }: LinkingConfigOptions = {}
 ): ExpoLinkingOptions {
   // Returning `undefined` / `null from `getInitialURL` are valid values, so we need to track if it's been called.
   let hasCachedInitialUrl = false;
@@ -75,13 +75,13 @@ export function getLinkingConfig(
           initialUrl = serverUrl ?? getInitialURL();
 
           if (typeof initialUrl === 'string') {
-            initialUrl = store.applyRedirects(initialUrl);
+            initialUrl = applyRedirects(initialUrl, redirects);
             if (initialUrl && typeof nativeLinking?.redirectSystemPath === 'function') {
               initialUrl = nativeLinking.redirectSystemPath({ path: initialUrl, initial: true });
             }
           } else if (initialUrl) {
             initialUrl = initialUrl.then((url) => {
-              url = store.applyRedirects(url);
+              url = applyRedirects(url, redirects);
               if (url && typeof nativeLinking?.redirectSystemPath === 'function') {
                 return nativeLinking.redirectSystemPath({ path: url, initial: true });
               }

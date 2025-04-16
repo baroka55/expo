@@ -1,5 +1,6 @@
 import { renderHook as tlRenderHook } from '@testing-library/react-native';
 import React from 'react';
+import { Text } from 'react-native';
 import { expectType } from 'tsd';
 
 import { ExpoRoot, Slot, router } from '../exports';
@@ -13,6 +14,7 @@ import {
 import Stack from '../layouts/Stack';
 import { act, renderRouter } from '../testing-library';
 import { inMemoryContext } from '../testing-library/context-stubs';
+import { useNavigation } from 'expo-router';
 
 /*
  * Creates an Expo Router context around the hook, where every router renders the hook
@@ -66,6 +68,33 @@ describe(useSegments, () => {
 });
 
 describe(useGlobalSearchParams, () => {
+  it(`updates when a non-focused screen changes it params`, () => {
+    let indexParams: object | undefined;
+    let routeParams: object | undefined;
+
+    renderRouter({
+      _layout: () => <Stack />,
+      index: function Index() {
+        indexParams = useGlobalSearchParams();
+        return null;
+      },
+      route: function Index() {
+        routeParams = useGlobalSearchParams();
+        return null;
+      },
+    });
+
+    act(() => router.push('/route'));
+
+    expect(indexParams).toEqual({});
+    expect(routeParams).toEqual({});
+
+    act(() => router.push('/route?fruit=banana'));
+
+    expect(indexParams).toEqual({ fruit: 'banana' });
+    expect(routeParams).toEqual({ fruit: 'banana' });
+  });
+
   it(`return params of deeply nested routes`, () => {
     const { result } = renderHook(() => useGlobalSearchParams(), ['[fruit]/[shape]/[...veg?]'], {
       initialUrl: '/apple/square',

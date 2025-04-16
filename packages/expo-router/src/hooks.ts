@@ -4,8 +4,8 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React from 'react';
 
 import { LocalRouteParamsContext } from './Route';
-import { INTERNAL_SLOT_NAME } from './getLinkingConfig';
-import { store } from './global-state/router-store';
+import { INTERNAL_SLOT_NAME } from './constants';
+import { store, useRouteInfo } from './global-state/router-store';
 import { router, Router } from './imperative-api';
 import { RouteParams, RouteSegments, UnknownOutputParams, Route } from './types';
 
@@ -28,10 +28,6 @@ export function useRootNavigationState() {
   return useNavigation<NavigationProp<object, never, string>>()
     .getParent(INTERNAL_SLOT_NAME)!
     .getState();
-}
-
-export function useRouteInfo() {
-  return store.getRouteInfo();
 }
 
 /**
@@ -80,7 +76,7 @@ export function useRouter(): Router {
  * from a predefined universal link. For example, `/foobar?hey=world` becomes `https://acme.dev/foobar?hey=world`.
  */
 export function useUnstableGlobalHref(): string {
-  const routeInfo = useRouteInfo();
+  const routeInfo = store.getRouteInfo();
   return routeInfo.unstable_globalHref;
 }
 
@@ -126,7 +122,7 @@ export function useSegments<TSegments extends Route = Route>(): RouteSegments<TS
  */
 export function useSegments<TSegments extends RouteSegments<Route>>(): TSegments;
 export function useSegments() {
-  const routeInfo = useRouteInfo();
+  const routeInfo = store.getRouteInfo();
   return routeInfo.segments;
 }
 
@@ -148,7 +144,7 @@ export function useSegments() {
  * ```
  */
 export function usePathname(): string {
-  return useRouteInfo().pathname;
+  return store.getRouteInfo().pathname;
 }
 
 /**

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useIsFocused,
   useStateForPath,
   type EventMapBase,
   type NavigationState,
@@ -242,11 +243,12 @@ export function getQualifiedRouteComponent(value: RouteNode) {
     ...props
   }: any) {
     const stateForPath = useStateForPath();
+    const isFocused = useIsFocused();
 
-    if (navigation.isFocused()) {
+    if (isFocused) {
       const state = navigation.getState();
       const isLeaf = !('state' in state.routes[state.index]);
-      if (isLeaf && stateForPath) store.setState(stateForPath);
+      if (isLeaf && stateForPath) store.setFocusedState(stateForPath);
     }
 
     return (

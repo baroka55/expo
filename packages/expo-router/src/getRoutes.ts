@@ -1,4 +1,5 @@
 import type { RouteNode } from './Route';
+import { DEFAULT_ROOT_LAYOUT_CONTEXT_KEY } from './constants';
 import { getRoutes as getRoutesCore, type Options as OptionsCore } from './getRoutesCore';
 import type { RequireContext } from './types';
 
@@ -27,7 +28,7 @@ export function getRoutes(contextModule: RequireContext, options: Options = {}):
               .DefaultNavigator,
           }),
           // Generate a fake file name for the directory
-          contextKey: 'expo-router/build/views/Navigator.js',
+          contextKey: `${DEFAULT_ROOT_LAYOUT_CONTEXT_KEY}.js`,
           route: '',
           generated: true,
           dynamic: null,
