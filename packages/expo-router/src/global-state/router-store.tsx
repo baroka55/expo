@@ -17,7 +17,7 @@ import { ExpoLinkingOptions, LinkingConfigOptions, getLinkingConfig } from '../g
 import { parseRouteSegments } from '../getReactNavigationConfig';
 import { getRoutes } from '../getRoutes';
 import { RedirectConfig } from '../getRoutesCore';
-import { defaultRouteInfo, getRouteInfoFromFocusedState, UrlObject } from '../routeInfo';
+import { defaultRouteInfo, getRouteInfoFromState, UrlObject } from '../routeInfo';
 import { getQualifiedRouteComponent } from '../routes/getRouteComponent';
 import { RequireContext } from '../types';
 import { shouldLinkExternally } from '../utils/url';
@@ -76,7 +76,7 @@ export const store = {
     let routeInfo = routeInfoCache.get(state);
 
     if (!routeInfo) {
-      routeInfo = getRouteInfoFromFocusedState(state);
+      routeInfo = getRouteInfoFromState(state);
       routeInfoCache.set(state, routeInfo);
     }
 
@@ -166,7 +166,7 @@ export function useStore(
     const initialURL = linking?.getInitialURL?.();
     if (typeof initialURL === 'string') {
       initialState = linking.getStateFromPath(initialURL, linking.config);
-      const initialRouteInfo = getRouteInfoFromFocusedState(initialState as any);
+      const initialRouteInfo = getRouteInfoFromState(initialState);
       routeInfoCache.set(initialState as any, initialRouteInfo);
     }
   } else {

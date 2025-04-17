@@ -81,7 +81,7 @@ exports.store = {
         }
         let routeInfo = routeInfoCache.get(state);
         if (!routeInfo) {
-            routeInfo = (0, routeInfo_1.getRouteInfoFromFocusedState)(state);
+            routeInfo = (0, routeInfo_1.getRouteInfoFromState)(state);
             routeInfoCache.set(state, routeInfo);
         }
         return routeInfo;
@@ -156,7 +156,7 @@ function useStore(context, linkingConfigOptions, serverUrl) {
         const initialURL = linking?.getInitialURL?.();
         if (typeof initialURL === 'string') {
             initialState = linking.getStateFromPath(initialURL, linking.config);
-            const initialRouteInfo = (0, routeInfo_1.getRouteInfoFromFocusedState)(initialState);
+            const initialRouteInfo = (0, routeInfo_1.getRouteInfoFromState)(initialState);
             routeInfoCache.set(initialState, initialRouteInfo);
         }
     }

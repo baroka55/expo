@@ -1,6 +1,8 @@
+import { NavigationState, PartialState } from '@react-navigation/native';
+
 import { INTERNAL_SLOT_NAME, NOT_FOUND_NAME } from './constants';
 import { appendBaseUrl } from './fork/getPathFromState-forks';
-import type { FocusedRouteState, ReactNavigationState } from './global-state/router-store';
+import type { FocusedRouteState } from './global-state/router-store';
 
 export type UrlObject = {
   unstable_globalHref: string;
@@ -23,16 +25,14 @@ export const defaultRouteInfo: UrlObject = {
 /**
  * A better typed version of `FocusedRouteState` that is easier to parse
  */
-type StrictFocusedRouteState = FocusedRouteState & {
-  routes: [
-    {
-      key?: string;
-      name: string;
-      params?: StrictFocusedRouteParams;
-      path?: string;
-      state?: StrictFocusedRouteState;
-    },
-  ];
+type StrictState = (FocusedRouteState | NavigationState | PartialState<NavigationState>) & {
+  routes: {
+    key?: string;
+    name: string;
+    params?: StrictFocusedRouteParams;
+    path?: string;
+    state?: StrictState;
+  }[];
 };
 
 type StrictFocusedRouteParams =
@@ -42,10 +42,8 @@ type StrictFocusedRouteParams =
       params?: StrictFocusedRouteParams;
     };
 
-export function getRouteInfoFromFocusedState(
-  focusedState: FocusedRouteState | ReactNavigationState
-): UrlObject {
-  let state: StrictFocusedRouteState | undefined = focusedState as StrictFocusedRouteState;
+export function getRouteInfoFromState(state?: StrictState): UrlObject {
+  if (!state) return defaultRouteInfo;
 
   let route = state.routes[0];
   if (route.name !== INTERNAL_SLOT_NAME) {
@@ -88,7 +86,7 @@ export function getRouteInfoFromFocusedState(
     }
   }
 
-  if (typeof route.params?.screen === 'string') {
+  if (route.params && 'screen' in route.params && route.params.screen === 'string') {
     segments.push(route.params.screen);
   }
 

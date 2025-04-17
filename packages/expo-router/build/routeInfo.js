@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultRouteInfo = void 0;
-exports.getRouteInfoFromFocusedState = getRouteInfoFromFocusedState;
+exports.getRouteInfoFromState = getRouteInfoFromState;
 const constants_1 = require("./constants");
 const getPathFromState_forks_1 = require("./fork/getPathFromState-forks");
 exports.defaultRouteInfo = {
@@ -12,8 +12,9 @@ exports.defaultRouteInfo = {
     segments: [],
     pathnameWithParams: '/',
 };
-function getRouteInfoFromFocusedState(focusedState) {
-    let state = focusedState;
+function getRouteInfoFromState(state) {
+    if (!state)
+        return exports.defaultRouteInfo;
     let route = state.routes[0];
     if (route.name !== constants_1.INTERNAL_SLOT_NAME) {
         throw new Error(`Expected the first route to be ${constants_1.INTERNAL_SLOT_NAME}, but got ${route.name}`);
@@ -47,7 +48,7 @@ function getRouteInfoFromFocusedState(focusedState) {
             routeParams = undefined;
         }
     }
-    if (typeof route.params?.screen === 'string') {
+    if (route.params && 'screen' in route.params && route.params.screen === 'string') {
         segments.push(route.params.screen);
     }
     if (segments[segments.length - 1] === 'index') {
