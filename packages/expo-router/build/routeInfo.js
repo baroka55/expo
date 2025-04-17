@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultRouteInfo = void 0;
 exports.getRouteInfoFromFocusedState = getRouteInfoFromFocusedState;
 const constants_1 = require("./constants");
+const getPathFromState_forks_1 = require("./fork/getPathFromState-forks");
 exports.defaultRouteInfo = {
     unstable_globalHref: '',
     searchParams: new URLSearchParams(),
@@ -121,7 +122,7 @@ function getRouteInfoFromFocusedState(focusedState) {
         segments,
         pathname,
         params,
-        unstable_globalHref: '',
+        unstable_globalHref: (0, getPathFromState_forks_1.appendBaseUrl)(pathnameWithParams),
         searchParams,
         pathnameWithParams,
     };

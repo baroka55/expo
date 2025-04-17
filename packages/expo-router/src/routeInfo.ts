@@ -1,4 +1,5 @@
 import { INTERNAL_SLOT_NAME, NOT_FOUND_NAME } from './constants';
+import { appendBaseUrl } from './fork/getPathFromState-forks';
 import type { FocusedRouteState } from './global-state/router-store';
 
 export type UrlObject = {
@@ -171,7 +172,7 @@ export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): U
     segments,
     pathname,
     params,
-    unstable_globalHref: '',
+    unstable_globalHref: appendBaseUrl(pathnameWithParams),
     searchParams,
     pathnameWithParams,
   };
