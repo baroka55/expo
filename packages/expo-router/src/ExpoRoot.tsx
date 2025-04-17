@@ -10,6 +10,7 @@ import React, { type PropsWithChildren, Fragment, type ComponentType, useMemo } 
 import { StatusBar, useColorScheme, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { INTERNAL_SLOT_NAME } from './constants';
 import { NavigationContainer as UpstreamNavigationContainer } from './fork/NavigationContainer';
 import { ExpoLinkingOptions } from './getLinkingConfig';
 import { store, useStore } from './global-state/router-store';
@@ -19,7 +20,6 @@ import { Screen } from './primitives';
 import { RequireContext } from './types';
 import { canOverrideStatusBarBehavior } from './utils/statusbar';
 import * as SplashScreen from './views/Splash';
-import { INTERNAL_SLOT_NAME } from './constants';
 
 export type ExpoRootProps = {
   context: RequireContext;

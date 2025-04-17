@@ -3,13 +3,13 @@ import { ViewProps, View, SafeAreaView } from 'react-native';
 
 import type { ExpoTabActionType } from './TabRouter';
 import { RouteNode } from '../Route';
+import { NOT_FOUND_NAME } from '../constants';
 import { resolveHref, resolveHrefStringWithSegments } from '../link/href';
 import { sortRoutesWithInitial } from '../sortRoutes';
 import { Href } from '../types';
 import { routeToScreen } from '../useScreens';
 import { Slot } from './Slot';
 import { UrlObject } from '../routeInfo';
-import { NOT_FOUND_NAME } from '../constants';
 
 // Fix the TypeScript types for <Slot />. It complains about the ViewProps["style"]
 export const ViewSlot = Slot as React.ForwardRefExoticComponent<

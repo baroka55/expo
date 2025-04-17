@@ -5,6 +5,7 @@ import {
   NavigationState,
   PartialState,
   useNavigationContainerRef,
+  useStateForPath,
 } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { ComponentType, Fragment, useEffect, useSyncExternalStore } from 'react';
@@ -22,25 +23,10 @@ import { getQualifiedRouteComponent } from '../useScreens';
 import { shouldLinkExternally } from '../utils/url';
 import * as SplashScreen from '../views/Splash';
 
-type FocusedRouteParams = {
-  [key: string]: string | string[];
-} & {
-  params?: FocusedRouteParams;
-};
+export type FocusedRouteState = NonNullable<ReturnType<typeof useStateForPath>>;
 
-export type FocusedRouteState = {
-  routes: [
-    {
-      key?: string;
-      name: string;
-      path?: string;
-      state?: FocusedRouteState;
-      params?: FocusedRouteParams;
-    },
-  ];
-};
 export type StoreRedirects = readonly [RegExp, RedirectConfig, boolean];
-type ReactNavigationState = NavigationState | PartialState<NavigationState>;
+export type ReactNavigationState = NavigationState | PartialState<NavigationState>;
 
 type StoreRef = {
   navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
@@ -74,6 +60,9 @@ export const store = {
   },
   get navigationRef() {
     return storeRef.current.navigationRef;
+  },
+  get routeNode() {
+    return storeRef.current.routeNode;
   },
   getRouteInfo(): UrlObject {
     const state = storeRef.current.focusedState;

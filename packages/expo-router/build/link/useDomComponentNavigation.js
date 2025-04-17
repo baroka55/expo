@@ -11,6 +11,7 @@ exports.emitDomLinkEvent = emitDomLinkEvent;
 exports.useDomComponentNavigation = useDomComponentNavigation;
 const global_1 = require("expo/dom/global");
 const react_1 = __importDefault(require("react"));
+const hooks_1 = require("../hooks");
 const ROUTER_LINK_TYPE = '$$router_link';
 const ROUTER_DISMISS_ALL_TYPE = '$$router_dismissAll';
 const ROUTER_DISMISS_TYPE = '$$router_dismiss';
@@ -39,7 +40,8 @@ function emitDomDismissAll() {
 function emitDomLinkEvent(href, options) {
     return emitDomEvent(ROUTER_LINK_TYPE, { href, options });
 }
-function useDomComponentNavigation(store) {
+function useDomComponentNavigation() {
+    const router = (0, hooks_1.useRouter)();
     react_1.default.useEffect(() => {
         if (process.env.EXPO_OS === 'web') {
             return () => { };
@@ -47,22 +49,22 @@ function useDomComponentNavigation(store) {
         return (0, global_1.addGlobalDomEventListener)(({ type, data }) => {
             switch (type) {
                 case ROUTER_LINK_TYPE:
-                    store.linkTo(data.href, data.options);
+                    router.linkTo(data.href, data.options);
                     break;
                 case ROUTER_DISMISS_ALL_TYPE:
-                    store.dismissAll();
+                    router.dismissAll();
                     break;
                 case ROUTER_DISMISS_TYPE:
-                    store.dismiss(data.count);
+                    router.dismiss(data.count);
                     break;
                 case ROUTER_BACK_TYPE:
-                    store.goBack();
+                    router.back();
                     break;
                 case ROUTER_SET_PARAMS_TYPE:
-                    store.setParams(data.params);
+                    router.setParams(data.params);
                     break;
             }
         });
-    }, [store]);
+    }, [router]);
 }
 //# sourceMappingURL=useDomComponentNavigation.js.map

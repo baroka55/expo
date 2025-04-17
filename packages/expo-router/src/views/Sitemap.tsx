@@ -7,7 +7,7 @@ import { Image, StyleSheet, Text, View, ScrollView, Platform, StatusBar } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Pressable } from './Pressable';
-import { RouteNode } from '../Route';
+import { RouteNode, sortRoutes } from '../Route';
 import { store } from '../global-state/router-store';
 import { router } from '../imperative-api';
 import { Link } from '../link/Link';
@@ -63,8 +63,10 @@ export function Sitemap() {
 }
 
 function FileSystemView() {
-  const routes = store.getSortedRoutes();
-  return routes.map((route) => (
+  // This shouldn't occur, as the user should be on the tutorial screen
+  if (!store.routeNode) return null;
+
+  return store.routeNode.children.sort(sortRoutes).map((route) => (
     <View key={route.contextKey} style={styles.itemContainer}>
       <FileItem route={route} />
     </View>

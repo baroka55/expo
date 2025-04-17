@@ -2,8 +2,8 @@ import { validatePathConfig as RNValidatePathConfig, type Route } from '@react-n
 import * as queryString from 'query-string';
 
 import type { Options, State, StringifyConfig } from './getPathFromState';
-import { matchDeepDynamicRouteName, matchDynamicName, matchGroupName } from '../matchers';
 import { NOT_FOUND_NAME } from '../constants';
+import { matchDeepDynamicRouteName, matchDynamicName, matchGroupName } from '../matchers';
 
 export type ExpoOptions = {
   preserveDynamicRoutes?: boolean;

@@ -6,9 +6,9 @@ import {
   useStateForPath,
 } from '@react-navigation/native';
 
+import { DEFAULT_ROOT_LAYOUT_CONTEXT_KEY, INTERNAL_SLOT_NAME } from './constants';
 import { resolveHref } from './link/href';
 import { Href } from './types';
-import { DEFAULT_ROOT_LAYOUT_CONTEXT_KEY, INTERNAL_SLOT_NAME } from './constants';
 
 /**
  * Returns the underlying React Navigation [`navigation` object](https://reactnavigation.org/docs/navigation-object)

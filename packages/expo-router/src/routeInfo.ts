@@ -5,20 +5,46 @@ export type UrlObject = {
   unstable_globalHref: string;
   pathname: string;
   readonly params: Record<string, string | string[]>;
+  searchParams: URLSearchParams;
   segments: string[];
+  pathnameWithParams: string;
 };
 
 export const defaultRouteInfo: UrlObject = {
   unstable_globalHref: '',
+  searchParams: new URLSearchParams(),
   pathname: '/',
   params: {},
   segments: [],
+  pathnameWithParams: '/',
 };
 
-export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): UrlObject {
-  let state: FocusedRouteState | undefined = focusedState;
+/**
+ * A better typed version of `FocusedRouteState` that is easier to parse
+ */
+type StrictFocusedRouteState = FocusedRouteState & {
+  routes: [
+    {
+      key?: string;
+      name: string;
+      params?: StrictFocusedRouteParams;
+      path?: string;
+      state?: StrictFocusedRouteState;
+    },
+  ];
+};
 
-  let route: FocusedRouteState['routes'][number] = state.routes[0];
+type StrictFocusedRouteParams =
+  | Record<string, string | string[]>
+  | {
+      screen?: string;
+      params?: StrictFocusedRouteParams;
+    };
+
+export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): UrlObject {
+  let state: StrictFocusedRouteState | undefined = focusedState as StrictFocusedRouteState;
+
+  let route = state.routes[0];
   if (route.name !== INTERNAL_SLOT_NAME) {
     throw new Error(`Expected the first route to be ${INTERNAL_SLOT_NAME}, but got ${route.name}`);
   }
@@ -44,14 +70,19 @@ export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): U
 
   /**
    * If React Navigation didn't render the entire tree (e.g it was interrupted in a layout)
-   * Then the reset of the focus state is still within the params
+   * then the state maybe incomplete. The reset of the path is in the params, instead of being a route
    */
-  let lastRouteParams = route.params;
-  while (lastRouteParams && 'screen' in lastRouteParams) {
-    if (typeof lastRouteParams.screen === 'string') {
-      segments.push(lastRouteParams.screen);
+  let routeParams: StrictFocusedRouteParams | undefined = route.params;
+  while (routeParams && 'screen' in routeParams) {
+    if (typeof routeParams.screen === 'string') {
+      segments.push(routeParams.screen);
     }
-    lastRouteParams = lastRouteParams.params;
+
+    if (typeof routeParams.params === 'object' && !Array.isArray(routeParams.params)) {
+      routeParams = routeParams.params;
+    } else {
+      routeParams = undefined;
+    }
   }
 
   if (typeof route.params?.screen === 'string') {
@@ -65,6 +96,8 @@ export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): U
   delete params['screen'];
   delete params['params'];
 
+  const pathParams = new Set<string>();
+
   const pathname =
     '/' +
     segments
@@ -74,6 +107,9 @@ export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): U
       .flatMap((segment) => {
         if (segment === NOT_FOUND_NAME) {
           const notFoundPath = params['not-found'];
+
+          pathParams.add('not-found');
+
           if (typeof notFoundPath === 'undefined') {
             // Not founds are optional, do nothing if its not present
             return [];
@@ -91,12 +127,14 @@ export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): U
           }
 
           const values = params[paramName];
+          pathParams.add(paramName);
 
           // Catchall params are optional
           return values || [];
         } else if (segment.startsWith('[') && segment.endsWith(']')) {
           const paramName = segment.slice(1, -1);
           const value = params[paramName];
+          pathParams.add(paramName);
 
           // Optional params are optional
           return value ? [value] : [];
@@ -106,10 +144,35 @@ export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): U
       })
       .join('/');
 
+  const searchParams = new URLSearchParams(
+    Object.entries(params).flatMap(([key, value]) => {
+      // Search params should not include path params
+      if (pathParams.has(key)) {
+        return [];
+      } else if (Array.isArray(value)) {
+        return value.map((v) => [key, v]);
+      }
+      return [[key, value]];
+    })
+  );
+
+  let hash: string | undefined;
+  if (searchParams.has('#')) {
+    hash = searchParams.get('#') || undefined;
+    searchParams.delete('#');
+  }
+
+  // We cannot use searchParams.size because it is not included in the React Native polyfill
+  const searchParamString = searchParams.toString();
+  let pathnameWithParams = searchParamString ? pathname + '?' + searchParamString : pathname;
+  pathnameWithParams = hash ? pathnameWithParams + '#' + hash : pathnameWithParams;
+
   return {
     segments,
     pathname,
     params,
     unstable_globalHref: '',
+    searchParams,
+    pathnameWithParams,
   };
 }
