@@ -23,10 +23,9 @@ import { RequireContext } from '../types';
 import { shouldLinkExternally } from '../utils/url';
 import * as SplashScreen from '../views/Splash';
 
-export type FocusedRouteState = NonNullable<ReturnType<typeof useStateForPath>>;
-
 export type StoreRedirects = readonly [RegExp, RedirectConfig, boolean];
 export type ReactNavigationState = NavigationState | PartialState<NavigationState>;
+export type FocusedRouteState = NonNullable<ReturnType<typeof useStateForPath>>;
 
 type StoreRef = {
   navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
@@ -43,7 +42,7 @@ const storeRef = {
   current: {} as StoreRef,
 };
 
-const routeInfoCache = new WeakMap<FocusedRouteState, UrlObject>();
+const routeInfoCache = new WeakMap<FocusedRouteState | ReactNavigationState, UrlObject>();
 
 let splashScreenAnimationFrame: number | undefined;
 let hasAttemptedToHideSplash = false;
@@ -66,9 +65,9 @@ export const store = {
   get routeNode() {
     return storeRef.current.routeNode;
   },
-  getRouteInfo(): UrlObject {
-    const state = storeRef.current.focusedState;
-
+  getRouteInfo(
+    state: FocusedRouteState | ReactNavigationState | undefined = storeRef.current.focusedState
+  ): UrlObject {
     if (!state) {
       return defaultRouteInfo;
     }

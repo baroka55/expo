@@ -74,8 +74,7 @@ exports.store = {
     get routeNode() {
         return storeRef.current.routeNode;
     },
-    getRouteInfo() {
-        const state = storeRef.current.focusedState;
+    getRouteInfo(state = storeRef.current.focusedState) {
         if (!state) {
             return routeInfo_1.defaultRouteInfo;
         }

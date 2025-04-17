@@ -5,9 +5,9 @@ import { ExpoLinkingOptions, LinkingConfigOptions } from '../getLinkingConfig';
 import { RedirectConfig } from '../getRoutesCore';
 import { UrlObject } from '../routeInfo';
 import { RequireContext } from '../types';
-export type FocusedRouteState = NonNullable<ReturnType<typeof useStateForPath>>;
 export type StoreRedirects = readonly [RegExp, RedirectConfig, boolean];
 export type ReactNavigationState = NavigationState | PartialState<NavigationState>;
+export type FocusedRouteState = NonNullable<ReturnType<typeof useStateForPath>>;
 export type RouterStore = typeof store;
 export declare const store: {
     shouldShowTutorial(): boolean;
@@ -15,7 +15,7 @@ export declare const store: {
     readonly focusedState: import("@react-navigation/core/lib/typescript/src/NavigationFocusedRouteStateContext").FocusedRouteState | undefined;
     readonly navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
     readonly routeNode: RouteNode | null;
-    getRouteInfo(): UrlObject;
+    getRouteInfo(state?: FocusedRouteState | ReactNavigationState | undefined): UrlObject;
     readonly redirects: StoreRedirects[];
     readonly rootComponent: ComponentType<any>;
     readonly linking: ExpoLinkingOptions | undefined;
@@ -29,7 +29,7 @@ export declare function useStore(context: RequireContext, linkingConfigOptions: 
     readonly focusedState: import("@react-navigation/core/lib/typescript/src/NavigationFocusedRouteStateContext").FocusedRouteState | undefined;
     readonly navigationRef: NavigationContainerRefWithCurrent<ReactNavigation.RootParamList>;
     readonly routeNode: RouteNode | null;
-    getRouteInfo(): UrlObject;
+    getRouteInfo(state?: FocusedRouteState | ReactNavigationState | undefined): UrlObject;
     readonly redirects: StoreRedirects[];
     readonly rootComponent: ComponentType<any>;
     readonly linking: ExpoLinkingOptions | undefined;
