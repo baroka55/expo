@@ -41,14 +41,13 @@ const Linking = __importStar(require("expo-linking"));
 const react_1 = require("react");
 const react_native_1 = require("react-native");
 const getStateFromPath_forks_1 = require("./fork/getStateFromPath-forks");
-const router_store_1 = require("./global-state/router-store");
 const matchers_1 = require("./matchers");
-function applyRedirects(url, redirects = router_store_1.store.redirects) {
+function applyRedirects(url, redirects) {
     if (typeof url !== 'string') {
         return url;
     }
     const nextUrl = (0, getStateFromPath_forks_1.cleanPath)(url);
-    const redirect = redirects.find(([regex]) => regex.test(nextUrl));
+    const redirect = redirects?.find(([regex]) => regex.test(nextUrl));
     if (!redirect) {
         return url;
     }
@@ -61,7 +60,7 @@ function applyRedirects(url, redirects = router_store_1.store.redirects) {
         Linking.openURL(href);
         return href;
     }
-    return applyRedirects(convertRedirect(url, redirect[1]));
+    return applyRedirects(convertRedirect(url, redirect[1]), redirects);
 }
 function getRedirectModule(route) {
     return {

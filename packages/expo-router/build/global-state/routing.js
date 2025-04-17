@@ -50,9 +50,9 @@ const native_1 = require("@react-navigation/native");
 const dom_1 = require("expo/dom");
 const Linking = __importStar(require("expo-linking"));
 const react_native_1 = require("react-native");
+const domComponentNavigation_1 = require("../dom/domComponentNavigation");
 const getRoutesRedirects_1 = require("../getRoutesRedirects");
 const href_1 = require("../link/href");
-const useDomComponentNavigation_1 = require("../link/useDomComponentNavigation");
 const matchers_1 = require("../matchers");
 const router_store_1 = require("./router-store");
 const url_1 = require("../utils/url");
@@ -70,7 +70,7 @@ function push(url, options) {
     return linkTo(url, { ...options, event: 'PUSH' });
 }
 function dismiss(count) {
-    if ((0, useDomComponentNavigation_1.emitDomDismiss)(count)) {
+    if ((0, domComponentNavigation_1.emitDomDismiss)(count)) {
         return;
     }
     router_store_1.store.navigationRef?.dispatch(native_1.StackActions.pop(count));
@@ -82,13 +82,13 @@ function replace(url, options) {
     return linkTo(url, { ...options, event: 'REPLACE' });
 }
 function dismissAll() {
-    if ((0, useDomComponentNavigation_1.emitDomDismissAll)()) {
+    if ((0, domComponentNavigation_1.emitDomDismissAll)()) {
         return;
     }
     router_store_1.store.navigationRef?.dispatch(native_1.StackActions.popToTop());
 }
 function goBack() {
-    if ((0, useDomComponentNavigation_1.emitDomGoBack)()) {
+    if ((0, domComponentNavigation_1.emitDomGoBack)()) {
         return;
     }
     router_store_1.store.assertIsReady();
@@ -118,7 +118,7 @@ function canDismiss() {
     return false;
 }
 function setParams(params = {}) {
-    if ((0, useDomComponentNavigation_1.emitDomSetParams)(params)) {
+    if ((0, domComponentNavigation_1.emitDomSetParams)(params)) {
         return;
     }
     router_store_1.store.assertIsReady();
@@ -129,7 +129,7 @@ function linkTo(href, options = {}) {
     if (typeof href !== 'string') {
         href = (0, href_1.resolveHref)(href);
     }
-    if ((0, useDomComponentNavigation_1.emitDomLinkEvent)(href, options)) {
+    if ((0, domComponentNavigation_1.emitDomLinkEvent)(href, options)) {
         return;
     }
     if ((0, url_1.shouldLinkExternally)(href)) {
@@ -154,7 +154,7 @@ function linkTo(href, options = {}) {
     const rootState = navigationRef.getRootState();
     const routeInfo = router_store_1.store.getRouteInfo();
     href = (0, href_1.resolveHrefStringWithSegments)(href, routeInfo, options);
-    href = (0, getRoutesRedirects_1.applyRedirects)(href);
+    href = (0, getRoutesRedirects_1.applyRedirects)(href, router_store_1.store.redirects);
     // If the href is undefined, it means that the redirect has already been handled the navigation
     if (!href) {
         return;

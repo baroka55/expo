@@ -2,6 +2,7 @@ import { LinkingOptions } from '@react-navigation/native';
 import { RouteNode } from './Route';
 import { StoreRedirects } from './global-state/router-store';
 import { getInitialURL, getPathFromState, getStateFromPath } from './link/linking';
+import { UrlObject } from './routeInfo';
 import { RequireContext } from './types';
 export declare function getNavigationConfig(routes: RouteNode, metaOnly?: boolean): {
     screens: {
@@ -22,5 +23,5 @@ export type LinkingConfigOptions = {
     getInitialURL?: typeof getInitialURL;
     redirects?: StoreRedirects[];
 };
-export declare function getLinkingConfig(routes: RouteNode, context: RequireContext, { metaOnly, serverUrl, redirects }?: LinkingConfigOptions): ExpoLinkingOptions;
+export declare function getLinkingConfig(routes: RouteNode, context: RequireContext, getRouteInfo: () => UrlObject, { metaOnly, serverUrl, redirects }?: LinkingConfigOptions): ExpoLinkingOptions;
 //# sourceMappingURL=getLinkingConfig.d.ts.map

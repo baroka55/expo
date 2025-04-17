@@ -18,7 +18,7 @@ function getNavigationConfig(routes, metaOnly = true) {
         },
     };
 }
-function getLinkingConfig(routes, context, { metaOnly = true, serverUrl, redirects } = {}) {
+function getLinkingConfig(routes, context, getRouteInfo, { metaOnly = true, serverUrl, redirects } = {}) {
     // Returning `undefined` / `null from `getInitialURL` are valid values, so we need to track if it's been called.
     let hasCachedInitialUrl = false;
     let initialUrl;
@@ -69,8 +69,10 @@ function getLinkingConfig(routes, context, { metaOnly = true, serverUrl, redirec
             }
             return initialUrl;
         },
-        subscribe: (0, linking_1.addEventListener)(nativeLinking),
-        getStateFromPath: linking_1.getStateFromPath,
+        subscribe: (0, linking_1.subscribe)(nativeLinking, redirects),
+        getStateFromPath: (path, options) => {
+            return (0, linking_1.getStateFromPath)(path, options, getRouteInfo().segments);
+        },
         getPathFromState(state, options) {
             return ((0, linking_1.getPathFromState)(state, {
                 ...config,

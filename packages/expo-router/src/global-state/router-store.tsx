@@ -18,8 +18,8 @@ import { parseRouteSegments } from '../getReactNavigationConfig';
 import { getRoutes } from '../getRoutes';
 import { RedirectConfig } from '../getRoutesCore';
 import { defaultRouteInfo, getRouteInfoFromFocusedState, UrlObject } from '../routeInfo';
+import { getQualifiedRouteComponent } from '../routes/getRouteComponent';
 import { RequireContext } from '../types';
-import { getQualifiedRouteComponent } from '../useScreens';
 import { shouldLinkExternally } from '../utils/url';
 import * as SplashScreen from '../views/Splash';
 
@@ -47,6 +47,8 @@ const routeInfoCache = new WeakMap<FocusedRouteState, UrlObject>();
 
 let splashScreenAnimationFrame: number | undefined;
 let hasAttemptedToHideSplash = false;
+
+export type RouterStore = typeof store;
 
 export const store = {
   shouldShowTutorial() {
@@ -151,7 +153,7 @@ export function useStore(
 
   if (routeNode) {
     // We have routes, so get the linking config and the root component
-    linking = getLinkingConfig(routeNode, context, {
+    linking = getLinkingConfig(routeNode, context, () => store.getRouteInfo(), {
       metaOnly: linkingConfigOptions.metaOnly,
       serverUrl,
       redirects,
@@ -164,6 +166,8 @@ export function useStore(
     const initialURL = linking?.getInitialURL?.();
     if (typeof initialURL === 'string') {
       initialState = linking.getStateFromPath(initialURL, linking.config);
+      const initialRouteInfo = getRouteInfoFromFocusedState(initialState as any);
+      routeInfoCache.set(initialState as any, initialRouteInfo);
     }
   } else {
     // Only error in production, in development we will show the onboarding screen
@@ -184,6 +188,10 @@ export function useStore(
     redirects,
     state: initialState,
   };
+
+  if (initialState) {
+    storeRef.current.focusedState = initialState as FocusedRouteState;
+  }
 
   useEffect(() => {
     return () => {

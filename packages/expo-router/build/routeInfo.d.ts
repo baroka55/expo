@@ -1,4 +1,4 @@
-import type { FocusedRouteState } from './global-state/router-store';
+import type { FocusedRouteState, ReactNavigationState } from './global-state/router-store';
 export type UrlObject = {
     unstable_globalHref: string;
     pathname: string;
@@ -8,5 +8,5 @@ export type UrlObject = {
     pathnameWithParams: string;
 };
 export declare const defaultRouteInfo: UrlObject;
-export declare function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): UrlObject;
+export declare function getRouteInfoFromFocusedState(focusedState: FocusedRouteState | ReactNavigationState): UrlObject;
 //# sourceMappingURL=routeInfo.d.ts.map

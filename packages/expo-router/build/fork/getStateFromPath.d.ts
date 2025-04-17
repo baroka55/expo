@@ -48,6 +48,6 @@ export type ParsedRoute = {
  * @param path Path string to parse and convert, e.g. /foo/bar?count=42.
  * @param options Extra options to fine-tune how to parse the path.
  */
-export declare function getStateFromPath<ParamList extends object>(path: string, options?: Options<ParamList>): ResultState | undefined;
+export declare function getStateFromPath<ParamList extends object>(path: string, options?: Options<ParamList>, segments?: string[]): ResultState | undefined;
 export {};
 //# sourceMappingURL=getStateFromPath.d.ts.map

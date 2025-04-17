@@ -11,11 +11,12 @@ import { StatusBar, useColorScheme, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { INTERNAL_SLOT_NAME } from './constants';
+import { useDomComponentNavigation } from './dom/useDomComponentNavigation';
 import { NavigationContainer as UpstreamNavigationContainer } from './fork/NavigationContainer';
 import { ExpoLinkingOptions } from './getLinkingConfig';
 import { store, useStore } from './global-state/router-store';
 import { ServerContext, ServerContextType } from './global-state/serverLocationContext';
-import { useDomComponentNavigation } from './link/useDomComponentNavigation';
+import { StoreContext } from './global-state/storeContext';
 import { Screen } from './primitives';
 import { RequireContext } from './types';
 import { canOverrideStatusBarBehavior } from './utils/statusbar';
@@ -145,19 +146,21 @@ function ContextNavigator({
   }
 
   return (
-    <UpstreamNavigationContainer
-      ref={store.navigationRef}
-      initialState={store.state}
-      linking={store.linking as LinkingOptions<any>}
-      onUnhandledAction={onUnhandledAction}
-      documentTitle={documentTitle}
-      onReady={store.onReady}>
-      <ServerContext.Provider value={serverContext}>
-        <WrapperComponent>
-          <Content />
-        </WrapperComponent>
-      </ServerContext.Provider>
-    </UpstreamNavigationContainer>
+    <StoreContext.Provider value={store}>
+      <UpstreamNavigationContainer
+        ref={store.navigationRef}
+        initialState={store.state}
+        linking={store.linking as LinkingOptions<any>}
+        onUnhandledAction={onUnhandledAction}
+        documentTitle={documentTitle}
+        onReady={store.onReady}>
+        <ServerContext.Provider value={serverContext}>
+          <WrapperComponent>
+            <Content />
+          </WrapperComponent>
+        </ServerContext.Provider>
+      </UpstreamNavigationContainer>
+    </StoreContext.Provider>
   );
 }
 

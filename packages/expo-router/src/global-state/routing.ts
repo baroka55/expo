@@ -3,16 +3,16 @@ import { IS_DOM } from 'expo/dom';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
-import { ResultState } from '../fork/getStateFromPath';
-import { applyRedirects } from '../getRoutesRedirects';
-import { resolveHref, resolveHrefStringWithSegments } from '../link/href';
 import {
   emitDomDismiss,
   emitDomDismissAll,
   emitDomGoBack,
-  emitDomLinkEvent,
   emitDomSetParams,
-} from '../link/useDomComponentNavigation';
+  emitDomLinkEvent,
+} from '../dom/domComponentNavigation';
+import { ResultState } from '../fork/getStateFromPath';
+import { applyRedirects } from '../getRoutesRedirects';
+import { resolveHref, resolveHrefStringWithSegments } from '../link/href';
 import { matchDynamicName } from '../matchers';
 import { Href } from '../types';
 import { SingularOptions } from '../useScreens';
@@ -172,7 +172,7 @@ export function linkTo(href: Href, options: LinkToOptions = {}) {
   const routeInfo = store.getRouteInfo();
 
   href = resolveHrefStringWithSegments(href, routeInfo, options);
-  href = applyRedirects(href);
+  href = applyRedirects(href, store.redirects);
 
   // If the href is undefined, it means that the redirect has already been handled the navigation
   if (!href) {

@@ -40,10 +40,11 @@ const react_1 = __importStar(require("react"));
 const react_native_1 = require("react-native");
 const react_native_safe_area_context_1 = require("react-native-safe-area-context");
 const constants_1 = require("./constants");
+const useDomComponentNavigation_1 = require("./dom/useDomComponentNavigation");
 const NavigationContainer_1 = require("./fork/NavigationContainer");
 const router_store_1 = require("./global-state/router-store");
 const serverLocationContext_1 = require("./global-state/serverLocationContext");
-const useDomComponentNavigation_1 = require("./link/useDomComponentNavigation");
+const storeContext_1 = require("./global-state/storeContext");
 const primitives_1 = require("./primitives");
 const statusbar_1 = require("./utils/statusbar");
 const SplashScreen = __importStar(require("./views/Splash"));
@@ -133,13 +134,15 @@ function ContextNavigator({ context, location: initialLocation = initialUrl, wra
             return null;
         }
     }
-    return (<NavigationContainer_1.NavigationContainer ref={store.navigationRef} initialState={store.state} linking={store.linking} onUnhandledAction={onUnhandledAction} documentTitle={documentTitle} onReady={store.onReady}>
-      <serverLocationContext_1.ServerContext.Provider value={serverContext}>
-        <WrapperComponent>
-          <Content />
-        </WrapperComponent>
-      </serverLocationContext_1.ServerContext.Provider>
-    </NavigationContainer_1.NavigationContainer>);
+    return (<storeContext_1.StoreContext.Provider value={store}>
+      <NavigationContainer_1.NavigationContainer ref={store.navigationRef} initialState={store.state} linking={store.linking} onUnhandledAction={onUnhandledAction} documentTitle={documentTitle} onReady={store.onReady}>
+        <serverLocationContext_1.ServerContext.Provider value={serverContext}>
+          <WrapperComponent>
+            <Content />
+          </WrapperComponent>
+        </serverLocationContext_1.ServerContext.Provider>
+      </NavigationContainer_1.NavigationContainer>
+    </storeContext_1.StoreContext.Provider>);
 }
 function Content() {
     const { state, descriptors, NavigationContent } = (0, native_1.useNavigationBuilder)(native_1.StackRouter, {

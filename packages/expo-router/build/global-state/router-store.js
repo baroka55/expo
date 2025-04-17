@@ -49,7 +49,7 @@ const getLinkingConfig_1 = require("../getLinkingConfig");
 const getReactNavigationConfig_1 = require("../getReactNavigationConfig");
 const getRoutes_1 = require("../getRoutes");
 const routeInfo_1 = require("../routeInfo");
-const useScreens_1 = require("../useScreens");
+const getRouteComponent_1 = require("../routes/getRouteComponent");
 const url_1 = require("../utils/url");
 const SplashScreen = __importStar(require("../views/Splash"));
 const storeRef = {
@@ -144,18 +144,20 @@ function useStore(context, linkingConfigOptions, serverUrl) {
     });
     if (routeNode) {
         // We have routes, so get the linking config and the root component
-        linking = (0, getLinkingConfig_1.getLinkingConfig)(routeNode, context, {
+        linking = (0, getLinkingConfig_1.getLinkingConfig)(routeNode, context, () => exports.store.getRouteInfo(), {
             metaOnly: linkingConfigOptions.metaOnly,
             serverUrl,
             redirects,
         });
-        rootComponent = (0, useScreens_1.getQualifiedRouteComponent)(routeNode);
+        rootComponent = (0, getRouteComponent_1.getQualifiedRouteComponent)(routeNode);
         // By default React Navigation is async and does not render anything in the first pass as it waits for `getInitialURL`
         // This will cause static rendering to fail, which once performs a single pass.
         // If the initialURL is a string, we can prefetch the state and routeInfo, skipping React Navigation's async behavior.
         const initialURL = linking?.getInitialURL?.();
         if (typeof initialURL === 'string') {
             initialState = linking.getStateFromPath(initialURL, linking.config);
+            const initialRouteInfo = (0, routeInfo_1.getRouteInfoFromFocusedState)(initialState);
+            routeInfoCache.set(initialState, initialRouteInfo);
         }
     }
     else {
@@ -175,6 +177,9 @@ function useStore(context, linkingConfigOptions, serverUrl) {
         redirects,
         state: initialState,
     };
+    if (initialState) {
+        storeRef.current.focusedState = initialState;
+    }
     (0, react_1.useEffect)(() => {
         return () => {
             // listener();

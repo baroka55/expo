@@ -3,16 +3,12 @@ import { Platform } from 'expo-modules-core';
 
 import { RouteNode } from './Route';
 import { INTERNAL_SLOT_NAME } from './constants';
-import { State } from './fork/getPathFromState';
+import { Options, State } from './fork/getPathFromState';
 import { getReactNavigationConfig } from './getReactNavigationConfig';
 import { applyRedirects } from './getRoutesRedirects';
 import { StoreRedirects } from './global-state/router-store';
-import {
-  addEventListener,
-  getInitialURL,
-  getPathFromState,
-  getStateFromPath,
-} from './link/linking';
+import { subscribe, getInitialURL, getPathFromState, getStateFromPath } from './link/linking';
+import { UrlObject } from './routeInfo';
 import { NativeIntent, RequireContext } from './types';
 
 export function getNavigationConfig(routes: RouteNode, metaOnly: boolean = true) {
@@ -41,6 +37,7 @@ export type LinkingConfigOptions = {
 export function getLinkingConfig(
   routes: RouteNode,
   context: RequireContext,
+  getRouteInfo: () => UrlObject,
   { metaOnly = true, serverUrl, redirects }: LinkingConfigOptions = {}
 ): ExpoLinkingOptions {
   // Returning `undefined` / `null from `getInitialURL` are valid values, so we need to track if it's been called.
@@ -95,8 +92,10 @@ export function getLinkingConfig(
       }
       return initialUrl;
     },
-    subscribe: addEventListener(nativeLinking),
-    getStateFromPath,
+    subscribe: subscribe(nativeLinking, redirects),
+    getStateFromPath: <ParamList extends object>(path: string, options?: Options<ParamList>) => {
+      return getStateFromPath(path, options, getRouteInfo().segments);
+    },
     getPathFromState(state: State, options: Parameters<typeof getPathFromState>[1]) {
       return (
         getPathFromState(state, {

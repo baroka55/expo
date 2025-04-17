@@ -1,6 +1,6 @@
 import { INTERNAL_SLOT_NAME, NOT_FOUND_NAME } from './constants';
 import { appendBaseUrl } from './fork/getPathFromState-forks';
-import type { FocusedRouteState } from './global-state/router-store';
+import type { FocusedRouteState, ReactNavigationState } from './global-state/router-store';
 
 export type UrlObject = {
   unstable_globalHref: string;
@@ -42,7 +42,9 @@ type StrictFocusedRouteParams =
       params?: StrictFocusedRouteParams;
     };
 
-export function getRouteInfoFromFocusedState(focusedState: FocusedRouteState): UrlObject {
+export function getRouteInfoFromFocusedState(
+  focusedState: FocusedRouteState | ReactNavigationState
+): UrlObject {
   let state: StrictFocusedRouteState | undefined = focusedState as StrictFocusedRouteState;
 
   let route = state.routes[0];

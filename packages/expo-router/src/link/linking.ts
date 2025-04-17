@@ -10,6 +10,7 @@ import { getPathFromState } from '../fork/getPathFromState';
 import { getStateFromPath } from '../fork/getStateFromPath';
 import { getInitialURLWithTimeout } from '../fork/useLinking';
 import { applyRedirects } from '../getRoutesRedirects';
+import type { StoreRedirects } from '../global-state/router-store';
 import { NativeIntent } from '../types';
 
 const isExpoGo = typeof expo !== 'undefined' && globalThis.expo?.modules?.ExpoGo;
@@ -75,7 +76,10 @@ function parseExpoGoUrlFromListener<T extends string | null>(url: T): T {
   return url;
 }
 
-export function addEventListener(nativeLinking: NativeIntent | undefined) {
+export function subscribe(
+  nativeLinking: NativeIntent | undefined,
+  redirects: StoreRedirects[] | undefined
+) {
   return (listener: (url: string) => void) => {
     let callback: (({ url }: { url: string }) => void) | undefined;
 
@@ -85,7 +89,7 @@ export function addEventListener(nativeLinking: NativeIntent | undefined) {
       // This extra work is only done in the Expo Go app.
       callback = async ({ url }) => {
         let href: string | undefined = parseExpoGoUrlFromListener(url);
-        href = applyRedirects(href);
+        href = applyRedirects(href, redirects);
         if (href && nativeLinking?.redirectSystemPath) {
           href = await nativeLinking.redirectSystemPath({ path: href, initial: false });
         }
@@ -96,7 +100,7 @@ export function addEventListener(nativeLinking: NativeIntent | undefined) {
       };
     } else {
       callback = async ({ url }) => {
-        let href = applyRedirects(url);
+        let href = applyRedirects(url, redirects);
         if (href && nativeLinking?.redirectSystemPath) {
           href = await nativeLinking.redirectSystemPath({ path: href, initial: false });
         }

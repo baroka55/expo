@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPathFromState = exports.getStateFromPath = void 0;
 exports.getInitialURL = getInitialURL;
 exports.getRootURL = getRootURL;
-exports.addEventListener = addEventListener;
+exports.subscribe = subscribe;
 const Linking = __importStar(require("expo-linking"));
 const react_native_1 = require("react-native");
 const extractPathFromURL_1 = require("../fork/extractPathFromURL");
@@ -96,7 +96,7 @@ function parseExpoGoUrlFromListener(url) {
     }
     return url;
 }
-function addEventListener(nativeLinking) {
+function subscribe(nativeLinking, redirects) {
     return (listener) => {
         let callback;
         const legacySubscription = nativeLinking?.legacy_subscribe?.(listener);
@@ -104,7 +104,7 @@ function addEventListener(nativeLinking) {
             // This extra work is only done in the Expo Go app.
             callback = async ({ url }) => {
                 let href = parseExpoGoUrlFromListener(url);
-                href = (0, getRoutesRedirects_1.applyRedirects)(href);
+                href = (0, getRoutesRedirects_1.applyRedirects)(href, redirects);
                 if (href && nativeLinking?.redirectSystemPath) {
                     href = await nativeLinking.redirectSystemPath({ path: href, initial: false });
                 }
@@ -115,7 +115,7 @@ function addEventListener(nativeLinking) {
         }
         else {
             callback = async ({ url }) => {
-                let href = (0, getRoutesRedirects_1.applyRedirects)(url);
+                let href = (0, getRoutesRedirects_1.applyRedirects)(url, redirects);
                 if (href && nativeLinking?.redirectSystemPath) {
                     href = await nativeLinking.redirectSystemPath({ path: href, initial: false });
                 }

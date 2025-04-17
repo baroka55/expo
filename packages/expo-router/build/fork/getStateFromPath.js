@@ -42,7 +42,6 @@ const escape_string_regexp_1 = __importDefault(require("escape-string-regexp"));
 const findFocusedRoute_1 = require("./findFocusedRoute");
 const expo = __importStar(require("./getStateFromPath-forks"));
 const constants_1 = require("../constants");
-const router_store_1 = require("../global-state/router-store");
 /**
  * Utility to parse a path string to initial state object accepted by the container.
  * This is useful for deep linking when we need to handle the incoming URL.
@@ -64,10 +63,14 @@ const router_store_1 = require("../global-state/router-store");
  * @param path Path string to parse and convert, e.g. /foo/bar?count=42.
  * @param options Extra options to fine-tune how to parse the path.
  */
-function getStateFromPath(path, options) {
+function getStateFromPath(path, options, 
+// START FORK
+segments = []
+// END FORK
+) {
     const { initialRoutes, configs, configWithRegexes } = getConfigResources(options, 
     // START FORK
-    router_store_1.store.getRouteInfo()?.segments
+    segments
     // END FORK
     );
     const screens = options?.screens;

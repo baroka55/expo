@@ -4,16 +4,16 @@ import { Platform } from 'react-native';
 
 import { cleanPath } from './fork/getStateFromPath-forks';
 import { RedirectConfig } from './getRoutesCore';
-import { store, StoreRedirects } from './global-state/router-store';
+import type { StoreRedirects } from './global-state/router-store';
 import { matchDeepDynamicRouteName, matchDynamicName } from './matchers';
 
-export function applyRedirects(url: string, redirects: StoreRedirects[] = store.redirects): string {
+export function applyRedirects(url: string, redirects: StoreRedirects[] | undefined): string {
   if (typeof url !== 'string') {
     return url;
   }
 
   const nextUrl = cleanPath(url);
-  const redirect = redirects.find(([regex]) => regex.test(nextUrl));
+  const redirect = redirects?.find(([regex]) => regex.test(nextUrl));
 
   if (!redirect) {
     return url;
@@ -30,7 +30,7 @@ export function applyRedirects(url: string, redirects: StoreRedirects[] = store.
     return href;
   }
 
-  return applyRedirects(convertRedirect(url, redirect[1]));
+  return applyRedirects(convertRedirect(url, redirect[1]), redirects);
 }
 
 export function getRedirectModule(route: string) {
